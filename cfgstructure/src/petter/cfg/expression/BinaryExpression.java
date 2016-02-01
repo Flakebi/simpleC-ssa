@@ -212,7 +212,9 @@ public class BinaryExpression implements Expression, java.io.Serializable{
         }
         // Operator is multiplicative or additive
         if (!right.getType().equals(left.getType()))
-            throw new UnsupportedOperationException("two different types in arithmetic expression; real type generalization is not supported yet."); 
+            throw new UnsupportedOperationException("two different types in binary expression:\n "
+                    + left.getType()+" "+sign+" " + right.getType()+"\n"
+                    + "real type generalization is not supported yet."); 
         return right.getType();
     }
 

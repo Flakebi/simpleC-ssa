@@ -64,7 +64,7 @@
     <jflex file="${flex}/Scanner.jflex" destdir="${generated}" />
   </target>
 
-  <target name="copy_src" depends="compiler-init,cup">
+  <target name="copy_src" depends="compiler-init,cup,jflex">
    <copy todir="${java}">
      <fileset dir="${src}" includes="**/**.java" />
    </copy>
