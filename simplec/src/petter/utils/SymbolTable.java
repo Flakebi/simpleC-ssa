@@ -1,6 +1,8 @@
 package petter.utils;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
@@ -32,7 +34,8 @@ public class SymbolTable{
     private HashMap<Integer,String> name= new HashMap<Integer,String>();;
     private int blocktiefe = 0;
     //TODO: statt Tupel ein Tripel, das zusätzlich noch den Typ(Variable, Label, Funktion) speichert
-    private Stack<Map<String,Tripel<Integer,Integer,Type>>> stack= new Stack<Map<String,Tripel<Integer,Integer,Type>>>();
+    private Stack<Map<String,Tripel<Integer,Integer,Type>>> stack= new Stack<>();
+    private Stack<Set<String>> typedefs = new Stack<>();
     private IDGenerator gen;
     private List<Integer> locals;
     private List<Integer> globals = new ArrayList<Integer>();
@@ -40,6 +43,7 @@ public class SymbolTable{
 
     public SymbolTable(){
         stack.push(new HashMap<String,Tripel<Integer,Integer,Type>>());
+        typedefs.push(new HashSet<String>());
     }
 
     /**
@@ -72,7 +76,7 @@ public class SymbolTable{
      * increase blocktiefe
      */
     public void enterBlock(){
-		//System.out.println(this.blocktiefe+" enter!");
+		System.out.println(this.blocktiefe+" enter!");
     	if (++blocktiefe == 1) {
             locals = new ArrayList<>();
             parameter = new ArrayList<>();
@@ -80,6 +84,7 @@ public class SymbolTable{
             labels = new HashMap<>();
         }
         stack.push(new HashMap<>(stack.peek()));
+        typedefs.push(new HashSet<String>(typedefs.peek()));
     }
     
    /**
@@ -87,7 +92,7 @@ public class SymbolTable{
      * decrease blocktiefe
      */
     public void leaveBlock(){
-		//System.out.println(this.blocktiefe+" leave!");
+		System.out.println(this.blocktiefe+" leave!");
     	if (blocktiefe-- == 1) {
 //            locals=null;
 //            parameter = null;
@@ -102,13 +107,16 @@ public class SymbolTable{
 //            labels = null;
         }
         undo = stack.pop();
+        undotypedefs=typedefs.pop();
     }
+    private Set<String> undotypedefs;
 	private Map<String, Tripel<Integer, Integer, Type>> undo;
 	public void undoLeave(){
 		//System.out.println(this.blocktiefe+" undo!");
 		if (undo!=null){
 			++blocktiefe;
 			stack.push(undo);
+			typedefs.push(undotypedefs);
 		}
 		else throw new RuntimeException("Cannot undo twice in a row");
 		undo=null;
@@ -131,6 +139,16 @@ public class SymbolTable{
         stack.peek().put(name,entry);
         if (blocktiefe==0) globals.add(id);
         else locals.add(id);
+        
+        // enter newly found typedef into scope:
+        if (typedefMode) {
+        	typedefs.peek().add(name.intern());
+        	System.out.println("Registered "+name+" as typename");
+        }
+        else{
+        	if (typedefs.peek().remove(name.intern())) System.out.println("Shadowed typename "+name);
+        	System.out.println("Registered "+name+" as variable");
+        }
         //System.out.println(this.blocktiefe+"Registered global/local "+name);
 
         return id;
@@ -143,6 +161,18 @@ public class SymbolTable{
         typecache = t;
     }
     public Type getLastParsedType(){ return typecache; }
+    private boolean typedefMode = false;
+    public void setTypedefMode(){  	typedefMode=true;    }
+    public void resetTypedefMode(){	typedefMode=false;   }
+    private boolean typenames=true;
+    public void disableTypenames() { 
+    	System.out.println("disable Typenames");
+    	typenames=false; 
+    }
+    public void enableTypenames() { 
+    	System.out.println("Enable Typenames");
+    	typenames=true; 
+    }
     /**
      * receive a temporary for this block
      * @return the internal number for this temporary
@@ -171,6 +201,17 @@ public class SymbolTable{
         
     }
 
+    public boolean isTypename(String name){
+    	if (typenames){
+    		if (typedefs.peek().contains(name.intern())){
+    			System.out.println(name+" is a typename");
+    			return true;
+    		}
+    	}
+    	System.out.println(name+" is no typename");
+    	return false;
+    }
+    
     /**
      * get external presentation of an internal identifier
      * @param id internal representation to query

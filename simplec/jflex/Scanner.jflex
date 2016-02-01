@@ -17,8 +17,12 @@ import petter.utils.Terminal;
 %public
 %{
   private boolean reportComments=false;
+  private Parser parser;
   public Lexer(java.io.InputStream in, ComplexSymbolFactory sf) {
     this(in,sf,false);
+  }
+  public void setParser(Parser parser){
+  	this.parser=parser;
   }
   public Lexer(java.io.InputStream in, ComplexSymbolFactory sf, boolean reportComments) {
     this(new java.io.InputStreamReader(in));
@@ -136,7 +140,11 @@ white_space = {new_line} | [ \t\f]
 
 
 /* names */
-{Ident}           { return symbol("Identifier",IDENT, new Terminal<String>(yytext())); }
+{Ident}           { 
+					if (parser.sym.isTypename(yytext()))
+						return symbol("Type-Name["+yytext()+"]",TYPE_NAME, new Terminal(parser.sym.getType(yytext()))); 
+					return symbol("Identifier",IDENT, new Terminal<String>(yytext())); 
+				  }
 
 
 

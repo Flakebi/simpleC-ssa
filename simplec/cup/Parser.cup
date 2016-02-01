@@ -28,10 +28,11 @@ parser code {:
 		return null;
 	}	
 
-    petter.utils.SymbolTable sym = new petter.utils.SymbolTable();
+    public petter.utils.SymbolTable sym = new petter.utils.SymbolTable();
     public int blocknestingdepth = 0;
     public Parser(Lexer lex, ComplexSymbolFactory sf) {
         super(lex,sf);
+		lex.setParser(this);
 		State initstate = createState();
  		globalinits = new Tupel<>(initstate,initstate);
 	try{
@@ -160,24 +161,25 @@ parser code {:
 
 
     public  void mergeStates(State news, State old){
-	Iterator<Transition> iter = old.getInIterator();
-	if(!iter.hasNext()) 
-	{Transition e = createNullEdge(old, news); 
-	e.putAnnotation( "__location_left", news.getAnnotation("__location"));
-	e.putAnnotation( "__location_right", old.getAnnotation("__location"));
-	if(old.isLoopSeparator()) news.setLoopSeparator(true);
-	if(old.getAnnotation("__label") != null) news.putAnnotation("__label", old.getAnnotation("__label"));
-	return; }
+		Iterator<Transition> iter = old.getInIterator();
+		if(!iter.hasNext()) {
+			Transition e = createNullEdge(old, news); 
+			e.putAnnotation( "__location_left", news.getAnnotation("__location"));
+			e.putAnnotation( "__location_right", old.getAnnotation("__location"));
+			if(old.isLoopSeparator()) news.setLoopSeparator(true);
+			if(old.getAnnotation("__label") != null) news.putAnnotation("__label", old.getAnnotation("__label"));
+			return; 
+		}
 	
-	while(iter.hasNext()){
-	    Transition e = iter.next();
-	    if(news.getAnnotation("__location") == null){
-		news.putAnnotation("__location", old.getAnnotation("__location"));
-	    }
-	    if(old.getAnnotation("__location") == null){
-		old.putAnnotation("__location", news.getAnnotation("__location"));
-	    }
-	    e.setDest(news);
+		while(iter.hasNext()){
+	    	Transition e = iter.next();
+	    	if(news.getAnnotation("__location") == null){
+				news.putAnnotation("__location", old.getAnnotation("__location"));
+	    	}
+	    	if(old.getAnnotation("__location") == null){
+				old.putAnnotation("__location", news.getAnnotation("__location"));
+	    	}
+	    	e.setDest(news);
         }
     }
 
@@ -322,7 +324,9 @@ translationunit  ::= declarationlist:l
 dspec ::= declspec:ds {: 
 	RESULT = ds; 
     parser.sym.setLastParsedType(typeFrom(ds));
-    isTypedef(ds);
+	parser.sym.disableTypenames();
+    if (isTypedef(ds)) 
+		parser.sym.setTypedefMode();
 :}
 ;
 declspec ::= type:typ 					{: RESULT=new LinkedList();RESULT.add(typ); :}
@@ -339,8 +343,9 @@ storageclassspec ::= TYPEDEF {: RESULT= new Integer(petter.simplec.sym.TYPEDEF);
 ;
 
 declarationlist ::= 
-declarationlist:l type:typ initdeclList:il
+declarationlist:l dspec:type initdeclList:il
 {:
+	Type typ = typeFrom(type);
 	State begin=parser.globalinits.b;
 	State end=begin;
  	for(Tupel<State, State> init : il){
@@ -352,12 +357,15 @@ declarationlist:l type:typ initdeclList:il
  	}
 	parser.globalinits = new Tupel<State, State>(parser.globalinits.a, end);
 	RESULT = l;
+	parser.sym.resetTypedefMode();
+	parser.sym.enableTypenames();
 :} 
  SEMI
  | declarationlist: l procdecl:d
 {:  if (d!=null)
         l.b.add(d);
-RESULT = l;
+	RESULT = l;
+	parser.sym.resetTypedefMode();//although it should be illegal here, anyway!
     :}
 | /* empty */
 {:
@@ -449,10 +457,7 @@ assign_opt:o {:
 :}
 ;
 assign_opt ::= ASSIGN expr:e {:	RESULT = e; :}
-|
-{:
-RESULT=null;
-:} 
+	|/* empty  */ {:  RESULT=null;  :} 
 ;
 
 
@@ -496,8 +501,10 @@ paramlist ::= paramlist:l COMMA paramdecl:d{:  RESULT = l; RESULT.add(d);  :}
 
 
 procdecl ::= 
- type:baseType declarator:d 
+ dspec:bType declarator:d 
 {: 
+    Type baseType=typeFrom(bType);
+	if (isTypedef(bType)) parser.report_fatal_error("Typedef in Procedure definition is not legal!",bType);;
 	Tupel<String,Type> binding = parser.binding(d,baseType);
     try {
 		parser.sym.setLastParsedType(binding.b);
@@ -515,9 +522,13 @@ procdecl ::=
 	if (parser.sym.getType(binding.a)==null)
         	parser.sym.newLocal(binding.a);
 	parser.sym.setLastParsedType(baseType);
+	parser.sym.enableTypenames();
+
+
 :} 
 BEGIN statementlist:l END
 {:
+	Type baseType=typeFrom(bType);
 	Tupel<String,Type> binding = parser.binding(d,baseType);
     List<Integer> locals =  parser.sym.getLocals();
 	//TODO: Parameters need to be extracted from declarator!!!!
@@ -531,6 +542,7 @@ BEGIN statementlist:l END
 	} 
 
     RESULT = new Procedure(binding.a,l.a,newret,locals, params); 
+
 
     parser.sym.leaveBlock();
     parser.blocknestingdepth--;
@@ -606,8 +618,9 @@ statement ::= HASH PRAGMA IDENT:i
  middle.putAnnotation("__label", i.getTerminal());
  RESULT = new Tupel<State, State>(middle, middle);
  :}
-| type:typ  initdeclList:list
+| dspec:type initdeclList:list
 {:
+ Type typ = typeFrom(type);
  State begin = parser.createState();
  State b=list.get(0).a;   
  State end = parser.createState();
@@ -620,6 +633,7 @@ statement ::= HASH PRAGMA IDENT:i
      end = t.b;
  } 
  RESULT = new Tupel<State, State>(b, end);
+ parser.sym.enableTypenames();
 :}SEMI 
 | FOR LPAR expr:e1{:
     RESULT = parser.generatePrePostFixes();
