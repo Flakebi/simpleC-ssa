@@ -84,7 +84,7 @@ white_space = {new_line} | [ \t\f]
 "pragma"          { return symbol("pragma",  PRAGMA); }
 "typedef"         { return symbol("typedef", TYPEDEF); }
 
-L?\"(\\.|[^\\\"])*\"    { return symbol("string literal["+yytext()+"]",STRING_LITERAL, new Terminal<String>(yytext().substring(1,yytext().length()-2))); }
+L?\"(\\.|[^\\\"])*\"    { return symbol("string literal["+yytext()+"]",STRING_LITERAL, new Terminal<String>(yytext().substring(1,yytext().length()-1))); }
 
 /* control flow */
 "for"             { return symbol("for",  FOR); }

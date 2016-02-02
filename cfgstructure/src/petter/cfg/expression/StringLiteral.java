@@ -52,7 +52,7 @@ public class StringLiteral implements Expression, java.io.Serializable{
      * @return string representation of integer value
      */
     public String toString(){
-	return ""+value;
+	return "\""+value+"\"";
     }
     /**
      * get the value of the StringLiteral
