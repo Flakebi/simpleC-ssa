@@ -128,10 +128,13 @@ public class Procedure implements java.io.Serializable,Analyzable{
             if (s.isBegin()||s.isEnd()) continue;
             states.remove(s);
             for (Transition t:s.getOut()){
-                if (unreachable.contains(t.getDest())) continue;
                 System.out.println("Removing: "+t);
-                t.getDest().deleteInEdge(t);
                 transen.remove(t);
+                // if the target state is reachable, we need to remove the reference to t from it,
+                // otherwise don't bother
+                if (unreachable.contains(t.getDest())) continue;
+                t.getDest().deleteInEdge(t);
+
             }
         }
         stateHash = fillHash(states);
