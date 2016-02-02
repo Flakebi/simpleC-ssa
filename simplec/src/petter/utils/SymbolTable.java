@@ -76,7 +76,7 @@ public class SymbolTable{
      * increase blocktiefe
      */
     public void enterBlock(){
-		System.out.println(this.blocktiefe+" enter!");
+		//System.out.println(this.blocktiefe+" enter!");
     	if (++blocktiefe == 1) {
             locals = new ArrayList<>();
             parameter = new ArrayList<>();
@@ -92,7 +92,7 @@ public class SymbolTable{
      * decrease blocktiefe
      */
     public void leaveBlock(){
-		System.out.println(this.blocktiefe+" leave!");
+		//System.out.println(this.blocktiefe+" leave!");
     	if (blocktiefe-- == 1) {
 //            locals=null;
 //            parameter = null;
@@ -143,11 +143,11 @@ public class SymbolTable{
         // enter newly found typedef into scope:
         if (typedefMode) {
         	typedefs.peek().add(name.intern());
-        	System.out.println("Registered "+name+" as typename");
+        	//System.out.println("Registered "+name+" as typename");
         }
         else{
-        	if (typedefs.peek().remove(name.intern())) System.out.println("Shadowed typename "+name);
-        	System.out.println("Registered "+name+" as variable");
+        	//if (typedefs.peek().remove(name.intern())) System.out.println("Shadowed typename "+name);
+        	//System.out.println("Registered "+name+" as variable");
         }
         //System.out.println(this.blocktiefe+"Registered global/local "+name);
 
@@ -166,11 +166,11 @@ public class SymbolTable{
     public void resetTypedefMode(){	typedefMode=false;   }
     private boolean typenames=true;
     public void disableTypenames() { 
-    	System.out.println("disable Typenames");
+    	//System.out.println("disable Typenames");
     	typenames=false; 
     }
     public void enableTypenames() { 
-    	System.out.println("Enable Typenames");
+    	//System.out.println("Enable Typenames");
     	typenames=true; 
     }
     /**
@@ -204,11 +204,11 @@ public class SymbolTable{
     public boolean isTypename(String name){
     	if (typenames){
     		if (typedefs.peek().contains(name.intern())){
-    			System.out.println(name+" is a typename");
+    			//System.out.println(name+" is a typename");
     			return true;
     		}
     	}
-    	System.out.println(name+" is no typename");
+    	//System.out.println(name+" is no typename");
     	return false;
     }
     
