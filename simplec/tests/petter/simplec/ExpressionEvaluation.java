@@ -342,7 +342,7 @@ public class ExpressionEvaluation {
 	@Test
 	public void derefRHS() {
 		try {
-			Transition main = extractMainTransition(compile(fromOneExpressionOnly("c = *a;")));
+			Transition main = extractMainTransition(compile(fromOneExpressionOnly("c = *p;")));
 			assertTrue(main instanceof Assignment);
 			Assignment a = (Assignment)main;
 			assertTrue(a.getLhs() instanceof Variable);
@@ -366,7 +366,7 @@ public class ExpressionEvaluation {
 	@Test
 	public void derefLHS() {
 		try {
-			Transition main = extractMainTransition(compile(fromOneExpressionOnly("*c = a;")));
+			Transition main = extractMainTransition(compile(fromOneExpressionOnly("*p = a;")));
 			assertTrue(main instanceof Assignment);
 			Assignment a = (Assignment)main;
 			assertTrue(a.getRhs() instanceof Variable);

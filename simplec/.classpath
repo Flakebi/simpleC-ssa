@@ -6,7 +6,7 @@
 	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
 	<classpathentry kind="con" path="lib"/>
 	<classpathentry kind="lib" path="tools/java-cup-11b-runtime.jar"/>
-	<classpathentry kind="lib" path="../cfgstructure/dist/cfgstructure.jar"/>
+	<classpathentry kind="lib" path="../cfgstructure/dist/cfgstructure.jar" sourcepath="cfgstructure-src"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
