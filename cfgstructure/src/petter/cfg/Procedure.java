@@ -1,7 +1,59 @@
 package petter.cfg;
 
 import java.util.*;
+import petter.cfg.edges.MethodCall;
 import petter.cfg.edges.Transition;
+
+class ForwardReachability extends AbstractPropagatingVisitor<Boolean> {
+
+	/* least upper bound */
+	static private Boolean lub(Boolean b1,Boolean b2){
+		if (b1==null) return b2;
+		if (b2==null) return b1;
+		return b1||b2;
+	}
+	/* less or equal */
+	static boolean lessoreq(Boolean b1,Boolean b2){
+		if (b1==null) return true;
+		if (b2==null) return false;
+		return ((!b1)||b2);
+	}
+	
+	
+	
+	
+	
+	public ForwardReachability() {
+		super(true);
+	}
+	@Override
+	public Boolean visit(State s, Boolean newFlow) {
+		Boolean oldFlow = dataflowOf(s);
+		if (!lessoreq(newFlow, oldFlow)){
+			Boolean newval = lub(oldFlow, newFlow);
+			dataflowOf(s,newval);
+			return newval;
+		}
+		return null;
+	}
+	
+	@Override
+	public Boolean visit(MethodCall ae, Boolean d) {
+		return d;
+	}
+	
+	public static Set<State> unreachableStates(Procedure p){
+		ForwardReachability fr = new ForwardReachability();
+        fr.enter(p, true);
+        fr.fullAnalysis();
+        Set<State> toRemove = new HashSet<>();
+        for (State s:p.getStates())
+        	if (!fr.dataflowOf(s))
+        		toRemove.add(s);
+        return toRemove;
+	}
+
+}
 
 public class Procedure implements java.io.Serializable,Analyzable{
     protected State begin;
@@ -70,6 +122,19 @@ public class Procedure implements java.io.Serializable,Analyzable{
 	states = new HashSet<>();
 	collectStates(states,begin);
 	stateHash = fillHash(states);
+        
+        Set<State> unreachable = ForwardReachability.unreachableStates(this);
+        for (State s: unreachable){
+            if (s.isBegin()||s.isEnd()) continue;
+            states.remove(s);
+            for (Transition t:s.getOut()){
+                if (unreachable.contains(t.getDest())) continue;
+                System.out.println("Removing: "+t);
+                t.getDest().deleteInEdge(t);
+                transen.remove(t);
+            }
+        }
+        stateHash = fillHash(states);
     }
     public void refreshStates(){
         states=new HashSet<>();

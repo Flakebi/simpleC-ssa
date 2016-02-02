@@ -1,13 +1,16 @@
 package petter.simplec;
 import petter.cfg.CompilationUnit;
 import petter.cfg.Procedure;
+import petter.cfg.State;
 import petter.utils.AnnotatingSymbolFactory;
 import petter.simplec.Lexer;
 import petter.simplec.Parser;
-
-
+import petter.simplec.transformations.ForwardReachability;
 import java_cup.runtime.*;
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
+
 import petter.cfg.DotLayout;
 public class Compiler{
 //    public static Lexer syntaxHighlighter(File f) throws Exception{
@@ -19,7 +22,8 @@ public class Compiler{
             InputStream is = new FileInputStream(f);
             AnnotatingSymbolFactory sf = new AnnotatingSymbolFactory(f);
             Parser parser = new Parser(new Lexer(is,sf),sf);
-            return (CompilationUnit)parser.parse().value;
+            CompilationUnit cu = (CompilationUnit)parser.parse().value;
+            return cu;
         
     }
     public static void main(String[] args){

@@ -65,8 +65,6 @@ SimpleC supports the following features:
 - Function pointers
 - TODO: Weird initializers for arrays
 - TODO: Sizes for types; 
-- TODO: char,short,long,byte,double,float
-- TODO: typedefs
 - TODO: Strings
 - TODO: Structs
 - TODO: type checking
