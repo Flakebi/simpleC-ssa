@@ -5,7 +5,6 @@ import petter.cfg.State;
 import petter.utils.AnnotatingSymbolFactory;
 import petter.simplec.Lexer;
 import petter.simplec.Parser;
-import petter.simplec.transformations.ForwardReachability;
 import java_cup.runtime.*;
 import java.io.*;
 import java.util.HashSet;
