@@ -258,6 +258,7 @@ terminal         OR, AND, GEQ, LEQ, NEQ, LT, GT, ASSIGN, SEMI, ILLEGAL, COMMENT;
 
 terminal Terminal<Integer> INTCONST;
 terminal Terminal<String>  IDENT;
+terminal Terminal<String> STRING_LITERAL;
 
 //non terminal Type typespec;
 non terminal CompilationUnit translationunit;
@@ -882,6 +883,7 @@ lhsexpression ::= IDENT:i
 
 expr ::= lhsexpression:l   {:  RESULT = l;  :}
  | INTCONST: i {:  RESULT = new IntegerConstant(i.getTerminal()); :}
+ | STRING_LITERAL:l {: RESULT = new StringLiteral(l.getTerminal()); :}
  | expr:l ASSIGN QUESTIONMARK{:
     UnknownExpression unknown =  new UnknownExpression(l.getType());
     parser.prefix.add(Tupel.create(l, unknown));

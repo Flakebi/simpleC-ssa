@@ -56,6 +56,7 @@ EndOfLineComment = "//" [^\r\n]* {new_line}
 CommentContent = ( [^*] | \*+[^*/] )*
 Comment = {TraditionalComment} | {EndOfLineComment}
 IntLiteral = 0 | [1-9][0-9]*
+L          =       [a-zA-Z_]
 
 new_line = \r|\n|\r\n
 
@@ -82,6 +83,8 @@ white_space = {new_line} | [ \t\f]
 "default"         { return symbol("default", DEFAULT); }
 "pragma"          { return symbol("pragma",  PRAGMA); }
 "typedef"         { return symbol("typedef", TYPEDEF); }
+
+L?\"(\\.|[^\\\"])*\"    { return symbol("string literal["+yytext()+"]",STRING_LITERAL, new Terminal<String>(yytext().substring(1,yytext().length()-2))); }
 
 /* control flow */
 "for"             { return symbol("for",  FOR); }

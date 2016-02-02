@@ -17,6 +17,7 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor{
     protected boolean defaultBehaviour(Expression e){
 	return true;
     }
+    public boolean preVisit(StringLiteral s){return defaultBehaviour(s);}
     public boolean preVisit(IntegerConstant s){return defaultBehaviour(s);}
     public boolean preVisit(Variable s){return defaultBehaviour(s);}
     public boolean preVisit(MethodCall s){return defaultBehaviour(s);}
@@ -24,6 +25,7 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor{
     public boolean preVisit(UnaryExpression s){return defaultBehaviour(s);}
     public boolean preVisit(BinaryExpression s){return defaultBehaviour(s);}
     public void postVisit(IntegerConstant s){}
+    public void postVisit(StringLiteral s){}
     public void postVisit(Variable s){}
     public void postVisit(MethodCall s){}
     public void postVisit(UnknownExpression s){}

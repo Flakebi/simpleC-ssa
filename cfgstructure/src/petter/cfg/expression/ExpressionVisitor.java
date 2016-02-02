@@ -16,6 +16,13 @@ public interface ExpressionVisitor{
     public boolean preVisit(IntegerConstant s);
     /**
      * specific previsit method.
+     * Override this method to provide custom actions when traversing an {@link StringLiteral}
+     * @param s the StringLiteral which is visited
+     * @return <code>true</true> when you want to continue, <code>false</code> otherwise
+     */
+    public boolean preVisit(StringLiteral s);
+    /**
+     * specific previsit method.
      * Override this method to provide custom actions when traversing a {@link Variable}
      * @param s the Variable which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
@@ -56,6 +63,12 @@ public interface ExpressionVisitor{
      * @param s the IntegerConstant which is visited
      */
     public void postVisit(IntegerConstant s);
+    /**
+     * specific postvisit method.
+     * Override this method to provide custom actions when traversing an {@link StringLiteral}
+     * @param s the IntegerConstant which is visited
+     */
+    public void postVisit(StringLiteral s);
     /**
      * specific postvisit method.
      * Override this method to provide custom actions when traversing a {@link Variable}
