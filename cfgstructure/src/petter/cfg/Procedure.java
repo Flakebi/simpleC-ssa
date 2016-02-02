@@ -6,6 +6,7 @@ import petter.cfg.edges.Transition;
 
 class ForwardReachability extends AbstractPropagatingVisitor<Boolean> {
 
+    
 	/* least upper bound */
 	static private Boolean lub(Boolean b1,Boolean b2){
 		if (b1==null) return b2;
@@ -43,14 +44,19 @@ class ForwardReachability extends AbstractPropagatingVisitor<Boolean> {
 	}
 	
 	public static Set<State> unreachableStates(Procedure p){
-		ForwardReachability fr = new ForwardReachability();
-        fr.enter(p, true);
-        fr.fullAnalysis();
-        Set<State> toRemove = new HashSet<>();
-        for (State s:p.getStates())
+            ForwardReachability fr = new ForwardReachability();
+            fr.enter(p, true);
+            fr.fullAnalysis();
+            Set<State> toRemove = new HashSet<>();
+            for (State s:p.getStates()){
         	if (!fr.dataflowOf(s))
         		toRemove.add(s);
-        return toRemove;
+                for (Transition t:s.getIn()){
+                    if (fr.dataflowOf(t.getSource())==null)
+                        toRemove.add(t.getSource());
+                }
+            }
+            return toRemove;
 	}
 
 }
@@ -128,15 +134,17 @@ public class Procedure implements java.io.Serializable,Analyzable{
             if (s.isBegin()||s.isEnd()) continue;
             states.remove(s);
             for (Transition t:s.getOut()){
-                System.out.println("Removing: "+t);
-                transen.remove(t);
+                
+                //transen.remove(t);
                 // if the target state is reachable, we need to remove the reference to t from it,
                 // otherwise don't bother
                 if (unreachable.contains(t.getDest())) continue;
                 t.getDest().deleteInEdge(t);
+                System.out.println("Removing: "+t);
 
             }
         }
+        
         stateHash = fillHash(states);
     }
     public void refreshStates(){
