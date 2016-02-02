@@ -3,6 +3,7 @@ import java.util.Map;
 import java.util.HashMap;
 import petter.cfg.expression.types.Int;
 import petter.cfg.expression.types.PointerTo;
+import petter.cfg.expression.types.Struct;
 import petter.cfg.expression.types.Type;
 /**
  * represents a BinaryExpression
@@ -209,6 +210,17 @@ public class BinaryExpression implements Expression, java.io.Serializable{
             if (!right.getType().equals(left.getType()))
                 throw new UnsupportedOperationException("two different types in boolean expression; real type generalization is not supported yet."); 
             return Int.create();
+        }
+        if (sign.is(Operator.SELECT)){
+            if (!(left.getType() instanceof Struct))
+                throw new UnsupportedOperationException("Trying to select from non-struct variable "+left+" of type "+left.getType());
+            Struct st = (Struct)left.getType();
+            String accessor = (String)right.getAnnotation("external name");
+            Type innert = st.getInner().get(accessor);
+            if (innert==null){
+                throw new UnsupportedOperationException("Trying to access a "+left.getType()+" typed struct with accessor "+accessor);
+            }
+            else return innert;
         }
         // Operator is multiplicative or additive
         if (!right.getType().equals(left.getType()))

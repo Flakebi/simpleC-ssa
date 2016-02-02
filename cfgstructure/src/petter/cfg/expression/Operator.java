@@ -26,6 +26,7 @@ public class Operator implements java.io.Serializable { //java.io.Externalizable
     public static final int ARRAY ;
     public static final int ADDRESSOF;
     public static final int DEREF;
+    public static final int SELECT;
 
     public Operator(int code){
         this.code = code;
@@ -47,10 +48,11 @@ public class Operator implements java.io.Serializable { //java.io.Externalizable
         ARRAY =13;
         ADDRESSOF = 14;
         DEREF = 15;
+        SELECT = 16;
         
-	invert = new int[ 16 ];
-	properties = new int [ 16 ];
-	names = new String [ 16 ];
+	invert = new int[ 17 ];
+	properties = new int [ 17 ];
+	names = new String [ 17 ];
 
 	invert[PLUS]=MINUS;
 	invert[MINUS]= PLUS;
@@ -80,6 +82,7 @@ public class Operator implements java.io.Serializable { //java.io.Externalizable
         properties[ARRAY]=0;
         properties[ADDRESSOF]=ADDRESSOP;
         properties[DEREF]=ADDRESSOP;
+        properties[SELECT]=0;
         
 	names[PLUS]="+";
 	names[MINUS]="-";
@@ -95,6 +98,7 @@ public class Operator implements java.io.Serializable { //java.io.Externalizable
         names[ARRAY]=" [ . ] ";
         names[ADDRESSOF]="&";
         names[DEREF]="*";
+        names[SELECT]=".";
     }
 
     

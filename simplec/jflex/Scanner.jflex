@@ -68,17 +68,18 @@ white_space = {new_line} | [ \t\f]
 
 /* keywords */
 "int"             { return symbol("int",     INT); }
-"char"            { return symbol("char",   CHAR); }
-"double"          { return symbol("double",   DOUBLE); }
+"char"            { return symbol("char",    CHAR); }
+"double"          { return symbol("double",  DOUBLE); }
 "float"           { return symbol("float",   FLOAT); }
-"long"            { return symbol("long",   LONG); }
+"long"            { return symbol("long",    LONG); }
+"struct"          { return symbol("struct",  STRUCT); }
 "short"           { return symbol("short",   SHORT); }
 "void"            { return symbol("void",    VOID ); }
 "return"          { return symbol("return",  RETURN); }
 "break"           { return symbol("break",   BREAK); }
 "continue"        { return symbol("continue",CONTINUE); }
 "goto"            { return symbol("goto",    GOTO); }
-"switch"          { return symbol("switch",     SWITCH); }
+"switch"          { return symbol("switch",  SWITCH); }
 "case"            { return symbol("case",    CASE); }
 "default"         { return symbol("default", DEFAULT); }
 "pragma"          { return symbol("pragma",  PRAGMA); }
@@ -104,6 +105,8 @@ L?\"(\\.|[^\\\"])*\"    { return symbol("string literal["+yytext()+"]",STRING_LI
 
 /* literals */
 {IntLiteral}      { return symbol("Integer Constant", INTCONST, new Terminal<Integer>(Integer.parseInt(yytext()))); }
+
+"."{white_space}?{Ident}               { return symbol("Selector",SELECTOR,new Terminal<String>(yytext().substring(1).trim())); }
 
 /* unknown expression */
 "?"               { return symbol("Question mark",QUESTIONMARK); }

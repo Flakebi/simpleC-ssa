@@ -248,7 +248,7 @@ parser code {:
 /* Terminals (tokens returned by lexer). */
 
 
-terminal		 INT, VOID,CHAR,DOUBLE,FLOAT,LONG,SHORT;
+terminal		 INT, VOID,CHAR,DOUBLE,FLOAT,LONG,SHORT,STRUCT;
 terminal Terminal<Type>    TYPE_NAME;
 terminal         TYPEDEF, RETURN, DO, FOR, PRAGMA, HASH, BREAK, CONTINUE, GOTO, DEFAULT, CASE, SWITCH, WHILE, IF, ELSE;
 terminal         COMMA,COLON, BEGIN, END, LPAR, RPAR, LSQ, RSQ;
@@ -257,7 +257,7 @@ terminal         ADDOFOP, QUESTIONMARK, INCOP, DECOP, ADDOP, SUBOP, MULOP, DIVOP
 terminal         OR, AND, GEQ, LEQ, NEQ, LT, GT, ASSIGN, SEMI, ILLEGAL, COMMENT;
 
 terminal Terminal<Integer> INTCONST;
-terminal Terminal<String>  IDENT;
+terminal Terminal<String>  IDENT, SELECTOR;
 terminal Terminal<String> STRING_LITERAL;
 
 //non terminal Type typespec;
@@ -285,11 +285,14 @@ non terminal XMLElement direct_declarator;
 non terminal XMLElement abstract_declarator;
 non terminal XMLElement direct_abstract_declarator;
 non terminal Type typename;
+non terminal Type struct_spec;
+non terminal Map<String,Type> struct_decl_list;
+non terminal Map<String,Type> struct_decl;
 non terminal Integer pointer;
 non terminal Expression assign_opt;
 
 precedence right ASSIGN;
-precedence right ELSE, AND, OR, MULEQ, DIVEQ, PLUSEQ, MINUSEQ, ADDOP, DIVOP, MULOP, SUBOP, LSQ;
+precedence right ELSE, AND, OR, MULEQ, DIVEQ, PLUSEQ, MINUSEQ, ADDOP, DIVOP, MULOP, SUBOP, LSQ, SELECTOR;
 
 
 translationunit  ::= declarationlist:l
@@ -474,6 +477,40 @@ typename ::= VOID {: RESULT = petter.cfg.expression.types.Void.create(); :}
     | LONG {: RESULT = petter.cfg.expression.types.Long.create(); :}
     | SHORT {: RESULT = petter.cfg.expression.types.Short.create(); :}
     | TYPE_NAME:t {: RESULT = t.getTerminal(); :}
+    | struct_spec:s {: RESULT =s; :}
+;
+
+struct_spec ::= STRUCT {: 
+	parser.sym.enterBlock();
+    parser.blocknestingdepth++;
+ :} BEGIN struct_decl_list {: 
+	Map<String,Type> m = new HashMap<>();
+	for (Integer in: parser.sym.getLocals())
+		m.put(parser.sym.getName(in),parser.sym.getType(in));
+	RESULT =new Struct(m);
+	parser.sym.leaveBlock();
+    parser.blocknestingdepth--;
+:} END 
+	| STRUCT IDENT:i{: 
+	parser.sym.enterBlock();
+    parser.blocknestingdepth++;
+ :}	BEGIN struct_decl_list  {:
+	Map<String,Type> m = new HashMap<>();
+	for (Integer in: parser.sym.getLocals())
+		m.put(parser.sym.getName(in),parser.sym.getType(in));
+	
+	RESULT =new Struct(i.getTerminal(),m); 
+	System.out.println(RESULT);
+	parser.sym.leaveBlock();
+    parser.blocknestingdepth--;
+ :} END
+	| STRUCT IDENT:i {: RESULT = new Struct(i.getTerminal(),null); :}
+;
+
+struct_decl_list ::= struct_decl_list struct_decl
+	| struct_decl
+;
+struct_decl ::= type initdeclList SEMI
 ;
 
 ///////////////////////////////////////
@@ -911,7 +948,11 @@ expr ::= lhsexpression:l   {:  RESULT = l;  :}
 {:
     RESULT = e;
 	:}
-
+| expr:lhs  SELECTOR:s 
+{:
+	parser.sym.enableTypenames(); 
+	RESULT = new BinaryExpression(lhs, new Operator(Operator.SELECT), new Variable(0,s.getTerminal(),Int.create()));
+:}
 | expr:lhs MULOP expr:rhs
 {:
     RESULT = new BinaryExpression(lhs, new Operator(Operator.MUL), rhs);

@@ -64,14 +64,14 @@ SimpleC supports the following features:
 - Types for (sub-) expressions
 - Function pointers
 - TODO: Weird initializers for arrays
+- TODO: initializers/memoryallocation for structs/arrays
 - TODO: Sizes for types; 
-- TODO: Structs
 - TODO: type checking
 - TODO: Casts
 - basic arithmetics like +/-/*//
 - address operators &/* 
 - Prefix/Postfix operators work, just not for array expresssions
-- basic control flow structures: if/while/for/goto/switch-case/do-while incl. break/continue
+- control flow structures: if/while/for/goto/switch-case/do-while incl. break/continue
 - Procedure call as (sub-) expressions
 - TODO: break/continue-labels
 
