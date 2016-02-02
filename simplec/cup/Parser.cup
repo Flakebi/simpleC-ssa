@@ -558,7 +558,7 @@ procdecl ::=
     parser.blocknestingdepth++;
 	parser.sym.setLastParsedType(binding.b);
 	if (parser.sym.getType(binding.a)==null)
-        	parser.sym.newLocal(binding.a);
+        	parser.sym.newGlobal(binding.a);
 	parser.sym.setLastParsedType(baseType);
 	parser.sym.enableTypenames();
 

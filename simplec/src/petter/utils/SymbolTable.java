@@ -122,7 +122,13 @@ public class SymbolTable{
 		undo=null;
 	}
 	
-    
+    public int newGlobal(String name) throws Exception {
+    	int saveblockdepth = blocktiefe;
+    	blocktiefe=0;
+    	int id =  newLocal(name);
+    	blocktiefe= saveblockdepth;
+    	return id;
+    }
     //TOOD: int newLocal(String name, int type);
     Type typecache;
     /**
@@ -284,7 +290,7 @@ public class SymbolTable{
     }
     private Map<String,List<State>> gotos= new HashMap<>();
     public void registerGoto(String id,State src){
-        if (!gotos.containsKey(id)) gotos.put(id, new LinkedList<>());
+        if (!gotos.containsKey(id)) gotos.put(id, new LinkedList<State>());
         gotos.get(id).add(src);
     }
 }
