@@ -3,13 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/petter/simplec/cfgstructure/src/petter/cfg/Procedure.java</file>
-            <file>file:/home/petter/simplec/cfgstructure/build.xml</file>
-            <file>file:/home/petter/simplec/cfgstructure/src/petter/cfg/PropagatingVisitor.java</file>
-            <file>file:/home/petter/simplec/cfgstructure/src/petter/cfg/Visitor.java</file>
-            <file>file:/home/petter/simplec/cfgstructure/src/petter/cfg/expression/ExpressionVisitor.java</file>
-            <file>file:/home/petter/simplec/cfgstructure/src/petter/cfg/CompilationUnit.java</file>
-            <file>file:/home/petter/simplec/cfgstructure/src/petter/cfg/expression/MethodCall.java</file>
+            <file>file:/home/petter/repositories/simpleC/cfgstructure/src/petter/cfg/DotLayout.java</file>
+            <file>file:/home/petter/repositories/simpleC/cfgstructure/src/petter/cfg/expression/types/Function.java</file>
+            <file>file:/home/petter/repositories/simpleC/cfgstructure/src/petter/cfg/expression/types/Type.java</file>
         </group>
     </open-files>
 </project-private>

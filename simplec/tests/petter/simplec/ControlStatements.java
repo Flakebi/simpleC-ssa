@@ -245,8 +245,6 @@ public class ControlStatements {
 			Assignment a = (Assignment)main;
 			assertTrue(a.getRhs() instanceof IntegerConstant);
 			
-			// skip;
-			main = directNextTransition(main);
 			assertTrue(main.getDest().isEnd());
 		}catch (Exception ex){
 			fail("Unexpected Exception "+ex);
@@ -346,10 +344,6 @@ public class ControlStatements {
 			a = (Assignment)main;
 			assertTrue(a.getRhs() instanceof Variable);
 			
-			// skip
-			main = directNextTransition(main);
-			assertTrue(main instanceof Nop);
-			
 			// c = c / c
 			main = directNextTransition(main);
 			assertTrue(main instanceof Assignment);
@@ -362,10 +356,6 @@ public class ControlStatements {
 			assertTrue(main instanceof Assignment);
 			a = (Assignment)main;
 			assertTrue(a.getRhs() instanceof Variable);
-			
-			// skip
-			main = directNextTransition(main);
-			assertTrue(main instanceof Nop);
 			
 			// b = b * b
 			main = directNextTransition(main);
@@ -385,10 +375,6 @@ public class ControlStatements {
 			assertTrue(main instanceof Assignment);
 			a = (Assignment)main;
 			assertTrue(a.getRhs() instanceof IntegerConstant);
-			
-			// skip
-			main = directNextTransition(main);
-			assertTrue(main instanceof Nop);
 			
 			assertTrue(main.getDest().isEnd());
 
