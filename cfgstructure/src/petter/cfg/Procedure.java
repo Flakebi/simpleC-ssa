@@ -140,7 +140,7 @@ public class Procedure implements java.io.Serializable,Analyzable{
                 // otherwise don't bother
                 if (unreachable.contains(t.getDest())) continue;
                 t.getDest().deleteInEdge(t);
-                System.out.println("Removing: "+t);
+                //System.out.println("Removing: "+t);
 
             }
         }

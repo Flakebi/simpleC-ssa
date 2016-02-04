@@ -61,5 +61,15 @@ public class AcceptedInputs {
 			fail("unexpected Exception "+e);
 		}
 	}
+	@Test
+	public void structs() {
+		try{
+			compile("structs.c");
+		}catch(Exception e){
+			e.printStackTrace();
+			fail("unexpected Exception "+e);
+		}
+	}
+
 
 }

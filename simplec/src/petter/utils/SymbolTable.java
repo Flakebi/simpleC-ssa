@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.Stack;
 import petter.cfg.State;
 import petter.cfg.TransitionFactory;
+import petter.cfg.expression.types.Struct;
 import petter.cfg.expression.types.Type;
 
 public class SymbolTable{
@@ -36,6 +37,7 @@ public class SymbolTable{
     //TODO: statt Tupel ein Tripel, das zusätzlich noch den Typ(Variable, Label, Funktion) speichert
     private Stack<Map<String,Tripel<Integer,Integer,Type>>> stack= new Stack<>();
     private Stack<Set<String>> typedefs = new Stack<>();
+    private Stack<Map<String,Tupel<Struct,Integer>>> namedstructs = new Stack<>();
     private IDGenerator gen;
     private List<Integer> locals;
     private List<Integer> globals = new ArrayList<Integer>();
@@ -43,6 +45,7 @@ public class SymbolTable{
 
     public SymbolTable(){
         stack.push(new HashMap<String,Tripel<Integer,Integer,Type>>());
+        namedstructs.push(new HashMap<String,Tupel<Struct,Integer>>());
         typedefs.push(new HashSet<String>());
     }
 
@@ -85,6 +88,7 @@ public class SymbolTable{
         }
         stack.push(new HashMap<>(stack.peek()));
         typedefs.push(new HashSet<String>(typedefs.peek()));
+        namedstructs.push(new HashMap<>(namedstructs.peek()));
     }
     
    /**
@@ -108,15 +112,18 @@ public class SymbolTable{
         }
         undo = stack.pop();
         undotypedefs=typedefs.pop();
+        undostructs=namedstructs.pop();
     }
     private Set<String> undotypedefs;
 	private Map<String, Tripel<Integer, Integer, Type>> undo;
+	private Map<String,Tupel<Struct,Integer>> undostructs;
 	public void undoLeave(){
 		//System.out.println(this.blocktiefe+" undo!");
 		if (undo!=null){
 			++blocktiefe;
 			stack.push(undo);
 			typedefs.push(undotypedefs);
+			namedstructs.push(undostructs);
 		}
 		else throw new RuntimeException("Cannot undo twice in a row");
 		undo=null;
@@ -292,6 +299,23 @@ public class SymbolTable{
     public void registerGoto(String id,State src){
         if (!gotos.containsKey(id)) gotos.put(id, new LinkedList<State>());
         gotos.get(id).add(src);
+    }
+    public void registerNamedStruct(String s,Struct t){
+    	Tupel<Struct,Integer> entry = namedstructs.peek().get(s);
+    	if (entry!=null){
+    		if (entry.a.getInner()==null) {
+    			entry.a.bind(t.getInner());
+    			return;
+    		}
+    		else if (entry.a.getInner()!=null || entry.b!=0 || blocktiefe==0) throw new UnsupportedOperationException("registered struct s already as "+entry.a.toDetailedString()+" instead of "+t.toDetailedString());
+    	}
+    	namedstructs.peek().put(s,Tupel.create(t, blocktiefe));
+    }
+    public Struct lookupNamedStruct(String s){
+    	Tupel<Struct,Integer> t = namedstructs.peek()
+    			.get(s);
+    	if (t!=null) return t.a;
+    	return null;
     }
 }
 

@@ -347,7 +347,9 @@ storageclassspec ::= TYPEDEF {: RESULT= new Integer(petter.simplec.sym.TYPEDEF);
 ;
 
 declarationlist ::= 
-declarationlist:l dspec:type initdeclList:il
+declarationlist:l dspec {: RESULT=l;:}SEMI
+
+| declarationlist:l dspec:type initdeclList:il
 {:
 	Type typ = typeFrom(type);
 	State begin=parser.globalinits.b;
@@ -491,24 +493,34 @@ struct_spec ::= STRUCT {:
 	parser.sym.leaveBlock();
     parser.blocknestingdepth--;
 :} END 
-	| STRUCT IDENT:i{: 
+	| STRUCT IDENT:i
+ {: 
+	RESULT =new Struct(i.getTerminal(),null); 
+	parser.sym.registerNamedStruct(i.getTerminal(),(Struct)RESULT);
 	parser.sym.enterBlock();
     parser.blocknestingdepth++;
  :}	BEGIN struct_decl_list  {:
 	Map<String,Type> m = new HashMap<>();
 	for (Integer in: parser.sym.getLocals())
 		m.put(parser.sym.getName(in),parser.sym.getType(in));
-	
-	RESULT =new Struct(i.getTerminal(),m); 
-	System.out.println(RESULT);
+	((Struct)RESULT).bind(m);	
+	System.out.println(((Struct)RESULT).toDetailedString());
 	parser.sym.leaveBlock();
     parser.blocknestingdepth--;
  :} END
-	| STRUCT IDENT:i {: RESULT = new Struct(i.getTerminal(),null); :}
+	| STRUCT IDENT:i {: 
+	RESULT = parser.sym.lookupNamedStruct(i.getTerminal());
+	if (RESULT==null){
+		parser.sym.registerNamedStruct(i.getTerminal(),new Struct(i.getTerminal(),null));
+	}
+	//System.out.println(" another use of "+((Struct)RESULT).toDetailedString());
+	
+:}
 ;
 
 struct_decl_list ::= struct_decl_list struct_decl
-	| struct_decl
+	//| struct_decl
+	|
 ;
 struct_decl ::= type initdeclList SEMI
 ;
