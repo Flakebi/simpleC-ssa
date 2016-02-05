@@ -22,6 +22,13 @@ public class Struct extends Type {
         this.inner=inner;
         this.name=null;
     }
+
+    public void bind(Map<String,Type> m){
+        if (inner==null) inner=m;
+        else throw new UnsupportedOperationException("Map is already bound to "+inner);
+    }
+
+
     public Map<String,Type> getInner(){ 
         return inner; 
     }
@@ -54,7 +61,13 @@ public class Struct extends Type {
     public String toString() {
         String tostring="struct ";
         if (name!=null) tostring+=name+" ";
-        return tostring+inner.toString();
+        return tostring;
+    }
+    
+    public String toDetailedString() {
+        String tostring="struct ";
+        if (name!=null) tostring+=name+" ";
+        return tostring+inner;
     }
     
     

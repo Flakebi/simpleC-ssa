@@ -70,6 +70,16 @@ public class AcceptedInputs {
 			fail("unexpected Exception "+e);
 		}
 	}
+	@Test
+	public void recursive() {
+		try{
+			compile("recursive.c");
+		}catch(Exception e){
+			e.printStackTrace();
+			fail("unexpected Exception "+e);
+		}
+	}
 
+	
 
 }

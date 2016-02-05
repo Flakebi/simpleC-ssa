@@ -1,5 +1,6 @@
 package petter.cfg.expression;
 
+import java.util.Optional;
 import petter.cfg.Annotatable;
 import petter.cfg.expression.types.Type;
 /**
@@ -41,6 +42,13 @@ public interface Expression extends Annotatable {
      * @param v the analysing ExpressionVisitor
      */
     void accept(ExpressionVisitor v);
+    /**
+     * analysis of an expression
+     * @param v the analyzing ExpressionVisitor
+     * @param S value propagated from parent
+     */
+    <up, down> Optional<up> accept(PropagatingDFS<up, down> v, down parentValue);
+
     /**
      * get the degree of an expression
      */

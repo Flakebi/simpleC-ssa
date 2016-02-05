@@ -1,6 +1,7 @@
 package petter.cfg.expression;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import petter.cfg.expression.types.Int;
 import petter.cfg.expression.types.Type;
 
@@ -109,6 +110,9 @@ public class IntegerConstant implements Expression, java.io.Serializable{
     public void accept(ExpressionVisitor v){
 	v.preVisit(this);
 	v.postVisit(this);
+    }
+    public <up,down> Optional<up> accept(PropagatingDFS<up,down> pv,down fromParent){
+        return pv.preVisit(this,fromParent).map(curr->pv.postVisit(this,curr));
     }
     /**
      * degree of an integer value is always 0

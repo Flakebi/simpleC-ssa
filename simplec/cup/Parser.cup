@@ -12,6 +12,7 @@ import petter.utils.Terminal;
 import petter.utils.AnnotatableList;
 import petter.utils.PostProcessVisitor;
 import petter.utils.BindingCreator;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 
 parser code {: 
 
@@ -204,7 +205,7 @@ parser code {:
      */
     @Override
     public void report_fatal_error(String message, Object   info) throws Exception {
-        System.err.println("FATAL: "+message+" "+info);
+		System.err.println("FATAL: "+errorFromObject(message,info));
         throw new Exception("in Simple C Compiler:\n  "+ message+ "\n  occured at "+info);
     }
     /** Report a non fatal error (or warning).  This method takes a message 
@@ -218,7 +219,7 @@ parser code {:
      */
     @Override
     public void report_error(String message, Object info) {
-        System.err.println("ERROR: "+message+" "+info);
+		System.err.println("ERROR: "+errorFromObject(message,info));
     }
 
     /** This method is called when a syntax error has been detected and recovery 
@@ -229,7 +230,7 @@ parser code {:
      */
     @Override
     public void syntax_error(Symbol cur_token) {
-      report_error("Syntax error", cur_token);
+      report_error("Syntax error:", cur_token);
       report_expected_token_ids();
     }
     /** This method is called if it is determined that syntax error recovery 
@@ -242,6 +243,30 @@ parser code {:
       report_fatal_error("Couldn't repair and continue parse", cur_token);
       //report_expected_token_ids();
     }
+
+	public String errorFromObject(String message, Object info){
+		if (info instanceof ComplexSymbol){
+			ComplexSymbol token = (ComplexSymbol)info;
+			Location left=token.xleft;
+			Location right=token.xright;
+			String location = " at ";
+			if (left!=null) location+=left+" / ";
+			if (right!=null) location+=right+";";
+	        return message+location;
+		}
+		else if (info instanceof Annotatable){
+			Annotatable token = (Annotatable)info;
+			Location left=(Location)token.getAnnotation("__location_left");
+			Location right=(Location)token.getAnnotation("__location_right");
+			String location = " at ";
+			if (left!=null) location+=left+" / ";
+			if (right!=null) location+=right+";";
+	        return message+location;
+		}
+		else {
+			return message+" "+info;
+		}
+	}
 
         :}; 
 
@@ -1110,8 +1135,9 @@ expr ::= lhsexpression:l   {:  RESULT = l;  :}
 | IDENT:rhs LPAR RPAR
 {:  
     Type typ = parser.sym.getType(rhs.getTerminal());
+	if (typ==null) parser.report_fatal_error("variable "+rhs+" not declared",rhs);
     if (typ instanceof PointerTo) typ=((PointerTo)typ).getInner();
-    if (!(typ instanceof Function)) parser.report_fatal_error("function call on non function type",rhs);
+    if (!(typ instanceof Function)) parser.report_fatal_error("function call on non function type: "+typ,rhs);
     Type rettyp = ((Function)typ).getReturnType();
     Expression e = new petter.cfg.expression.MethodCall(rhs.getTerminal(), typ, new ArrayList<Expression>());    
     int tmpid = parser.sym.newTemporary(typ);
@@ -1122,8 +1148,9 @@ expr ::= lhsexpression:l   {:  RESULT = l;  :}
 | IDENT:rhs LPAR exprlist:l RPAR
 {:  
     Type typ = parser.sym.getType(rhs.getTerminal());
+	if (typ==null) parser.report_fatal_error("variable "+rhs+" not declared",rhs);
     if (typ instanceof PointerTo) typ=((PointerTo)typ).getInner();
-    if (!(typ instanceof Function)) parser.report_fatal_error("function call on non function type",rhs);
+    if (!(typ instanceof Function)) parser.report_fatal_error("function call on non function type: "+typ,rhs);
     Type rettyp = ((Function)typ).getReturnType();
     Expression e = new petter.cfg.expression.MethodCall(rhs.getTerminal(), typ, l.getList());    
     int tmpid = parser.sym.newTemporary(typ);

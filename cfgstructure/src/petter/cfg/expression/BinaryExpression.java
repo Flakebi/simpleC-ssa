@@ -1,6 +1,7 @@
 package petter.cfg.expression;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import petter.cfg.expression.types.Int;
 import petter.cfg.expression.types.PointerTo;
 import petter.cfg.expression.types.Struct;
@@ -166,6 +167,16 @@ public class BinaryExpression implements Expression, java.io.Serializable{
 	}
 	v.postVisit(this);
     }
+
+    @Override
+    public <up, down> Optional<up> accept(PropagatingDFS<up, down> v, down parentValue) {
+        return v.preVisit(this, parentValue)
+                .flatMap(curr->this.left.accept(v,curr)
+                        .flatMap(aLhs-> right.accept(v,curr)
+                                .map(aRhs-> v.postVisit(this,aLhs,aRhs))));
+                        
+    }
+    
     /**
      * get the degree of the BinaryExpression 
      * @return guess what?

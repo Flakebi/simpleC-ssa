@@ -1,6 +1,7 @@
 package petter.cfg.expression;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import petter.cfg.expression.types.Type;
 /**
  * represents an UnknownExpression 
@@ -99,6 +100,9 @@ public class UnknownExpression implements Expression, java.io.Serializable{
     public void accept(ExpressionVisitor v){
 	v.preVisit(this);
 	v.postVisit(this);
+    }
+    public <up,down> Optional<up> accept(PropagatingDFS<up,down> pv,down fromParent){
+        return pv.preVisit(this,fromParent).map(curr->pv.postVisit(this,curr));
     }
     /**
      * an UnknownExpression has no degree

@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.stream.Stream;
 import petter.cfg.expression.types.Type;
 /**
  * represents a MethodCall as an Expression
@@ -139,6 +141,22 @@ public class MethodCall implements Expression, java.io.Serializable{
         }
 	v.postVisit(this);
     }
+
+    @Override
+    public <up, down> Optional<up> accept(PropagatingDFS<up, down> v, down parentValue) {
+        return v.preVisit(this, parentValue)
+                .flatMap(curr ->{
+                    Stream<Optional<up>> abstractParams =
+                            params.stream().
+                                    map(param->param.accept(v, curr));
+                    if(abstractParams.anyMatch(Optional.empty()::equals)) return Optional.empty();
+                    else {
+                        return Optional.of(v.postVisit(this,curr,abstractParams.map(o->o.get())));
+                    }
+                }
+                );
+    }
+    
     /**
      * a MethodCall has no degree
      * @return -1

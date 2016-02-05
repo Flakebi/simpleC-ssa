@@ -1,6 +1,7 @@
 package petter.cfg.expression;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import petter.cfg.expression.types.PointerTo;
 import petter.cfg.expression.types.Type;
 /**
@@ -125,6 +126,11 @@ public class UnaryExpression implements Expression, java.io.Serializable{
     public void accept(ExpressionVisitor v){
 	if (v.preVisit(this)) e.accept(v);
 	v.postVisit(this);
+    }
+    public <up,down> Optional<up> accept(PropagatingDFS<up,down> pv,down fromParent){
+        return pv.preVisit(this,fromParent)
+                .flatMap(curr->e.accept(pv,curr))
+                .map(curr->pv.postVisit(this,curr));
     }
     /**
      * @return degree of UnaryExpression
