@@ -115,7 +115,7 @@ public class ReachabilityAnalysis extends AbstractPropagatingVisitor<Boolean>{
         super(true); // forward reachability
 	    this.cu=cu;
     }
-    public Boolean visit(MethodCall m,Boolean b){
+    public Boolean visit(ProcedureCall m,Boolean b){
         // method calls need special attention; in this case, we just 
         // continue with analysing the next state and triggering the analysis
         // of the callee
