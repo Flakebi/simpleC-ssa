@@ -1,8 +1,16 @@
-package petter.cfg.expression;
+package petter.cfg.expression.visitors;
 
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
+import petter.cfg.expression.BinaryExpression;
+import petter.cfg.expression.Expression;
+import petter.cfg.expression.FunctionCall;
+import petter.cfg.expression.IntegerConstant;
+import petter.cfg.expression.StringLiteral;
+import petter.cfg.expression.UnaryExpression;
+import petter.cfg.expression.UnknownExpression;
+import petter.cfg.expression.Variable;
 
 /**
  * provides an abstract class to visit an expression in DFS, while passing a propagated value around;
@@ -22,7 +30,7 @@ public abstract class DefaultUpDownDFS<T> implements PropagatingDFS<T, T> {
     @Override public Optional<T> preVisit(StringLiteral s, T fromParent){return defaultBehaviourPre(s,fromParent);}
     @Override public Optional<T> preVisit(IntegerConstant s, T fromParent){return defaultBehaviourPre(s,fromParent);}
     @Override public Optional<T> preVisit(Variable s, T fromParent){return defaultBehaviourPre(s,fromParent);}
-    @Override public Optional<T> preVisit(MethodCall s, T fromParent){return defaultBehaviourPre(s,fromParent);}
+    @Override public Optional<T> preVisit(FunctionCall s, T fromParent){return defaultBehaviourPre(s,fromParent);}
     @Override public Optional<T> preVisit(UnknownExpression s, T fromParent){return defaultBehaviourPre(s,fromParent);}
     @Override public Optional<T> preVisit(UnaryExpression s, T fromParent){return defaultBehaviourPre(s,fromParent);}
     @Override public Optional<T> preVisit(BinaryExpression s, T fromParent){return defaultBehaviourPre(s,fromParent);}
@@ -42,7 +50,7 @@ public abstract class DefaultUpDownDFS<T> implements PropagatingDFS<T, T> {
         }
 
         @Override
-        public T postVisit(MethodCall m, T fromTop, Stream<T> it) {
+        public T postVisit(FunctionCall m, T fromTop, Stream<T> it) {
             return it.reduce(join).orElse(fromTop);
         }
         

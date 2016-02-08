@@ -1,4 +1,6 @@
 package petter.cfg.expression;
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -188,14 +190,6 @@ public class BinaryExpression implements Expression, java.io.Serializable{
 	
 	return -1;
     }
-    public void substitute(Variable v, Expression ex){
-      if (left.equals(v)) left = ex;
-      else left.substitute(v,ex);
-      if (right.equals(v)) right = ex;
-      else right.substitute(v,ex);
-      
-    }
-    
     public boolean equals(Object o){
         if (! (o instanceof BinaryExpression)) return false;
         if (!left.equals(((BinaryExpression)o).left)) return false;

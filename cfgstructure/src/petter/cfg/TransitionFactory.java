@@ -5,7 +5,7 @@ import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.Nop;
 import petter.cfg.edges.Transition;
 import petter.cfg.expression.Expression;
-import petter.cfg.expression.MethodCall;
+import petter.cfg.expression.FunctionCall;
 import petter.cfg.expression.Operator;
 import petter.cfg.expression.Variable;
 
@@ -46,7 +46,7 @@ public class TransitionFactory {
         return new GuardedTransition(source, dest, assertion, op);
     }
 
-    public static Transition createMethodCall(State source, State dest, MethodCall m) {
-        return new petter.cfg.edges.MethodCall(source, dest, m);
+    public static Transition createProcedureCall(State source, State dest, FunctionCall m) {
+        return new petter.cfg.edges.ProcedureCall(source, dest, m);
     }
 }

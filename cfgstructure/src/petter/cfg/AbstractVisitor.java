@@ -6,7 +6,7 @@ import petter.cfg.edges.Assignment;
 import java.util.Queue;
 import java.util.Iterator;
 import java.util.LinkedList;
-import petter.cfg.edges.MethodCall;
+import petter.cfg.edges.ProcedureCall;
 /**
  * provides a generic interface to constructing a fixpoint iteration algorithm.
  * You would have to extend an own class from this one to get an own fixpoint algorithm. The Visitor performs a run through the whole CFG, as long as it's visit methods return true; to terminate a run, You have to ensure, that the return value of a visit method becomes false at some point.
@@ -127,5 +127,5 @@ public abstract class AbstractVisitor implements Visitor{
     public boolean visit(Assignment s) 	     { return defaultBehaviour(s); }
     public boolean visit(GuardedTransition s)	     { return defaultBehaviour(s); }
     public boolean visit(Procedure s)	     { return defaultBehaviour(s); }
-    public boolean visit(MethodCall s)	     { return defaultBehaviour(s); }
+    public boolean visit(ProcedureCall s)	     { return defaultBehaviour(s); }
 }

@@ -17,7 +17,7 @@ import petter.cfg.edges.Transition;
 import petter.cfg.expression.BinaryExpression;
 import petter.cfg.expression.Expression;
 import petter.cfg.expression.IntegerConstant;
-import petter.cfg.expression.MethodCall;
+import petter.cfg.expression.FunctionCall;
 import petter.cfg.expression.Operator;
 import petter.cfg.expression.UnaryExpression;
 import petter.cfg.expression.Variable;
@@ -67,7 +67,7 @@ public class ExpressionEvaluation {
 			assertTrue(transition instanceof Assignment);
 			Assignment a = (Assignment)transition;
 			assertTrue(a.getLhs() instanceof Variable);
-			assertTrue(a.getRhs() instanceof MethodCall);
+			assertTrue(a.getRhs() instanceof FunctionCall);
 			Variable temp = (Variable)a.getLhs();
 
 			//a = $1
@@ -133,8 +133,8 @@ public class ExpressionEvaluation {
 			assertTrue(transition instanceof Assignment);
 			a = (Assignment)transition;
 			assertTrue(a.getLhs() instanceof Variable);
-			assertTrue(a.getRhs() instanceof MethodCall);
-			MethodCall callex = (MethodCall)a.getRhs();
+			assertTrue(a.getRhs() instanceof FunctionCall);
+			FunctionCall callex = (FunctionCall)a.getRhs();
 			Iterator<Expression> it = callex.getParamsUnchanged().iterator();
 			
 			// check for the correct flow of the expressions value

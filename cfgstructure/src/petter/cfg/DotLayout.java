@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
-import petter.cfg.edges.MethodCall;
+import petter.cfg.edges.ProcedureCall;
 import petter.cfg.edges.Transition;
 
 /**
@@ -114,12 +114,12 @@ public class DotLayout {
             String s = n2s.get(e.getSource()) + " -> " + n2s.get(e.getDest());
             s2e.put(s, e);
             String url="";
-            if (e instanceof MethodCall) url= ",URL="+((MethodCall)e).getCallExpression().getName();
+            if (e instanceof ProcedureCall) url= ",URL="+((ProcedureCall)e).getCallExpression().getName();
             if (e instanceof GuardedTransition) color="deepskyblue";
             if (e instanceof Assignment) {
                 Assignment a = ((Assignment)e);
-                if (a.getRhs() instanceof petter.cfg.expression.MethodCall){
-                    url = ",fontcolor=darkviolet,URL="+((petter.cfg.expression.MethodCall)a.getRhs()).getName();
+                if (a.getRhs() instanceof petter.cfg.expression.FunctionCall){
+                    url = ",fontcolor=darkviolet,URL="+((petter.cfg.expression.FunctionCall)a.getRhs()).getName();
                     color = "darkviolet";
                 }
             }

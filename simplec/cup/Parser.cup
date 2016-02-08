@@ -84,8 +84,8 @@ parser code {:
         result.putAnnotation("__parser_blocknestingdepth",blocknestingdepth);
         return result;
     }
-    public Transition createMethodCallEdge(State start, State end, petter.cfg.expression.MethodCall m){
-        Transition result = TransitionFactory.createMethodCall(start, end, m);
+    public Transition createMethodCallEdge(State start, State end, FunctionCall m){
+        Transition result = TransitionFactory.createProcedureCall(start, end, m);
         result.putAnnotation("__parser_blocknestingdepth",blocknestingdepth);
         return result;
     }
@@ -123,8 +123,8 @@ parser code {:
             State connect = createState();
             Transition e;
             Type tbtype = t.b.getType();
-            if ((t.b instanceof petter.cfg.expression.MethodCall)&&(retType(tbtype).equals(petter.cfg.expression.types.Void.create())))   
-               e = createMethodCallEdge(start, connect, (petter.cfg.expression.MethodCall)t.b);
+            if ((t.b instanceof FunctionCall)&&(retType(tbtype).equals(petter.cfg.expression.types.Void.create())))   
+               e = createMethodCallEdge(start, connect, (FunctionCall)t.b);
             else  
                e = createAssignmentEdge(start, connect, t.a, t.b);
 	    e.putAnnotation( "__location_left", t.b.getAnnotation("__location_left"));
@@ -334,7 +334,7 @@ translationunit  ::= declarationlist:l
 		State newend = parser.createState();
 		int tmpid = parser.sym.newTemporary(Int.create());
     	Variable tmp = new Variable(tmpid,parser.sym.getName(tmpid),Int.create());
-		parser.createAssignmentEdge(parser.globalinits.b,newend,tmp,new petter.cfg.expression.MethodCall("main",null,new LinkedList<>()));
+		parser.createAssignmentEdge(parser.globalinits.b,newend,tmp,new FunctionCall("main",null,new LinkedList<>()));
 		Procedure init = new Procedure("$init",parser.globalinits.a,newend,new LinkedList<>(),new LinkedList<>());
 		ht.put(init.getName(),init);
 	    
@@ -1139,7 +1139,7 @@ expr ::= lhsexpression:l   {:  RESULT = l;  :}
     if (typ instanceof PointerTo) typ=((PointerTo)typ).getInner();
     if (!(typ instanceof Function)) parser.report_fatal_error("function call on non function type: "+typ,rhs);
     Type rettyp = ((Function)typ).getReturnType();
-    Expression e = new petter.cfg.expression.MethodCall(rhs.getTerminal(), typ, new ArrayList<Expression>());    
+    Expression e = new FunctionCall(rhs.getTerminal(), typ, new ArrayList<Expression>());    
     int tmpid = parser.sym.newTemporary(typ);
     Variable tmp = new Variable(tmpid,parser.sym.getName(tmpid),rettyp);
     parser.prefix.add(Tupel.create(tmp,e));
@@ -1152,7 +1152,7 @@ expr ::= lhsexpression:l   {:  RESULT = l;  :}
     if (typ instanceof PointerTo) typ=((PointerTo)typ).getInner();
     if (!(typ instanceof Function)) parser.report_fatal_error("function call on non function type: "+typ,rhs);
     Type rettyp = ((Function)typ).getReturnType();
-    Expression e = new petter.cfg.expression.MethodCall(rhs.getTerminal(), typ, l.getList());    
+    Expression e = new FunctionCall(rhs.getTerminal(), typ, l.getList());    
     int tmpid = parser.sym.newTemporary(typ);
     Variable tmp = new Variable(tmpid,parser.sym.getName(tmpid),rettyp);
     parser.prefix.add(Tupel.create(tmp,e));

@@ -8,20 +8,20 @@ import petter.cfg.Visitor;
  *
  * @author stefan
  */
-public class MethodCall extends Transition {
+public class ProcedureCall extends Transition {
 
-    private final petter.cfg.expression.MethodCall m;
+    private final petter.cfg.expression.FunctionCall m;
         
     /**
      * obtain the call expression
      * @return the call expression
      */
-    public petter.cfg.expression.MethodCall getCallExpression() { 
+    public petter.cfg.expression.FunctionCall getCallExpression() { 
         return m; 
     }
 
     
-    public MethodCall(State source, State dest, petter.cfg.expression.MethodCall m) {
+    public ProcedureCall(State source, State dest, petter.cfg.expression.FunctionCall m) {
         super(source, dest);
         this.m = m;
     }

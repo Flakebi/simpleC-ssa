@@ -1,8 +1,13 @@
 package petter.cfg.expression;
 
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import petter.cfg.Annotatable;
 import petter.cfg.expression.types.Type;
+import petter.cfg.expression.visitors.Substitution;
 /**
  * provides an interface to constructing an expression
  * @author Michael Petter
@@ -38,10 +43,10 @@ public interface Expression extends Annotatable {
      */
     boolean hasUnknown();
     /**
-     * analysis of an expression
-     * @param v the analysing ExpressionVisitor
+     * @see Expression#accept(petter.cfg.expression.PropagatingDFS, java.lang.Object) 
      */
-    void accept(ExpressionVisitor v);
+    @Deprecated
+    default void accept(ExpressionVisitor v) {throw new UnsupportedOperationException("naive accept is deprecated; use the propagating one instead"); }
     /**
      * analysis of an expression
      * @param v the analyzing ExpressionVisitor
@@ -54,9 +59,22 @@ public interface Expression extends Annotatable {
      */
     int getDegree();
     /**
-     * substitute this variable with the following expression
+     * substitute this variable with the following expression;
+     * deprecated and removed in a few releases, however 
+     * @see Substitution#subst(petter.cfg.expression.Expression, java.util.Map) 
      */
-    void substitute(Variable v, Expression ex);
+    @Deprecated
+    default void substitute(Variable v, Expression ex) { throw new UnsupportedOperationException("Side-effect prone substitution is not decent; use the lazy copying variant!");}
+    
+    /**
+     * Shiny new substitution method, creates a deep copy of the expression
+     * @see Substitution
+    */
+    default Expression subst(Variable v,Expression ex){
+        Map<Variable,Expression> map = new HashMap<>();
+        map.put(v, ex);
+        return Substitution.subst(this,map);
+    }
   
     /**
      * @return the composite type of the expression

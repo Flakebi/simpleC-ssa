@@ -1,4 +1,6 @@
 package petter.cfg.expression;
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
@@ -13,7 +15,7 @@ import petter.cfg.expression.types.Type;
  * @author Michael Petter
  * @author Andrea Flexeder
  */
-public class MethodCall implements Expression, java.io.Serializable{
+public class FunctionCall implements Expression, java.io.Serializable{
     private String name;
     private List<Expression> params;
 
@@ -51,7 +53,7 @@ public class MethodCall implements Expression, java.io.Serializable{
      * @param name name of the method
      * @param params List of all the parameters of the method
      */
-    public MethodCall(String name, Type staticType, List<Expression> params){
+    public FunctionCall(String name, Type staticType, List<Expression> params){
 	this.name = name;
 	this.params=params;
         this.type=staticType;
@@ -164,17 +166,11 @@ public class MethodCall implements Expression, java.io.Serializable{
     public int getDegree(){
 	return -1;
     }
-    public void substitute(Variable v, Expression ex){
-        Iterator<Expression> it = params.iterator();
-        while (it.hasNext()){
-            it.next().substitute(v,ex);
-        }
-    }
     public boolean equals(Object o){
-        if (! (o instanceof MethodCall)) return false;
-        if (!name.equals(((MethodCall)o).name)) return false;
+        if (! (o instanceof FunctionCall)) return false;
+        if (!name.equals(((FunctionCall)o).name)) return false;
         Iterator<Expression> it = params.iterator();
-        Iterator<Expression> it2 = (((MethodCall)o).params).iterator();
+        Iterator<Expression> it2 = (((FunctionCall)o).params).iterator();
         while (it.hasNext()){
             if(!it2.hasNext()) return false;
             if (!it.next().equals(it2.next())) return false;

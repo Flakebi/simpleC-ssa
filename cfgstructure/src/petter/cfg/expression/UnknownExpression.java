@@ -1,4 +1,6 @@
 package petter.cfg.expression;
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -43,8 +45,6 @@ public class UnknownExpression implements Expression, java.io.Serializable{
     public void putAnnotations(Map<?, ?> a) {
         annotations.putAll(a);
     }
-
-    public void substitute(Variable v, Expression ex){}
     /**
      * the UnknownExpression
      * @return "?"

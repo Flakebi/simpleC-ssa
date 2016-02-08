@@ -1,4 +1,6 @@
 package petter.cfg.expression;
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -121,7 +123,6 @@ public class IntegerConstant implements Expression, java.io.Serializable{
     public int getDegree(){
 	return 0;
     }
-    public void substitute(Variable v, Expression ex){}
     public boolean equals(Object o){
         if (! (o instanceof IntegerConstant)) return false;
         return (((IntegerConstant)o).value == value);

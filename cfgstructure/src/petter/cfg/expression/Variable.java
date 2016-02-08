@@ -1,4 +1,6 @@
 package petter.cfg.expression;
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -155,8 +157,5 @@ public class Variable implements Expression, Annotatable, java.io.Serializable{
     public int getDegree(){
 	return 1;
     }
-    public void substitute(Variable v, Expression ex){}
-  
-
 }
 

@@ -1,4 +1,14 @@
-package petter.cfg.expression;
+package petter.cfg.expression.visitors;
+
+import petter.cfg.expression.BinaryExpression;
+import petter.cfg.expression.Expression;
+import petter.cfg.expression.FunctionCall;
+import petter.cfg.expression.IntegerConstant;
+import petter.cfg.expression.StringLiteral;
+import petter.cfg.expression.UnaryExpression;
+import petter.cfg.expression.UnknownExpression;
+import petter.cfg.expression.Variable;
+
 /**
  * provides an abstract class to visit an expression;
  * the visitor performs a run through the whole expression, as long as it's visit methods return true;
@@ -7,6 +17,7 @@ package petter.cfg.expression;
  * @author Michael Petter
  * @author Andrea Flexeder
  */
+@Deprecated
 public abstract class AbstractExpressionVisitor implements ExpressionVisitor{
     /**
      * provides a standardized return value for all not overwritten visit methods.
@@ -20,14 +31,14 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor{
     public boolean preVisit(StringLiteral s){return defaultBehaviour(s);}
     public boolean preVisit(IntegerConstant s){return defaultBehaviour(s);}
     public boolean preVisit(Variable s){return defaultBehaviour(s);}
-    public boolean preVisit(MethodCall s){return defaultBehaviour(s);}
+    public boolean preVisit(FunctionCall s){return defaultBehaviour(s);}
     public boolean preVisit(UnknownExpression s){return defaultBehaviour(s);}
     public boolean preVisit(UnaryExpression s){return defaultBehaviour(s);}
     public boolean preVisit(BinaryExpression s){return defaultBehaviour(s);}
     public void postVisit(IntegerConstant s){}
     public void postVisit(StringLiteral s){}
     public void postVisit(Variable s){}
-    public void postVisit(MethodCall s){}
+    public void postVisit(FunctionCall s){}
     public void postVisit(UnknownExpression s){}
     public void postVisit(UnaryExpression s){}
     public void postVisit(BinaryExpression s){}

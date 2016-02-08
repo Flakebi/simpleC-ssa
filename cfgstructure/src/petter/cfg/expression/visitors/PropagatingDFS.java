@@ -1,102 +1,113 @@
-package petter.cfg.expression;
+package petter.cfg.expression.visitors;
+
+import java.util.Optional;
+import java.util.stream.Stream;
+import petter.cfg.expression.BinaryExpression;
+import petter.cfg.expression.FunctionCall;
+import petter.cfg.expression.IntegerConstant;
+import petter.cfg.expression.StringLiteral;
+import petter.cfg.expression.UnaryExpression;
+import petter.cfg.expression.UnknownExpression;
+import petter.cfg.expression.Variable;
+
 /**
  * provides a basic interface for all simple visitors of an expression
  * this interface has to be implemented to visit an expression 
  * @see AbstractExpressionVisitor
  * @author Michael Petter
- * @author Andrea Flexeder
+ * @author Daniel Stuewe
  */
-public interface ExpressionVisitor{
+public interface PropagatingDFS<up,down>{
     /**
-     * specific previsit method.
+     * specific visit method.
      * Override this method to provide custom actions when traversing an {@link IntegerConstant}
      * @param s the IntegerConstant which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(IntegerConstant s);
+    public Optional<down> preVisit(IntegerConstant s,down fromParent);
     /**
-     * specific previsit method.
+     * specific visit method.
      * Override this method to provide custom actions when traversing an {@link StringLiteral}
      * @param s the StringLiteral which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(StringLiteral s);
+    public Optional<down> preVisit(StringLiteral s,down fromParent);
     /**
      * specific previsit method.
      * Override this method to provide custom actions when traversing a {@link Variable}
      * @param s the Variable which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(Variable s);
+    public Optional<down> preVisit(Variable s,down fromParent);
     /**
      * specific previsit method.
-     * Override this method to provide custom actions when traversing a {@link MethodCall }
+     * Override this method to provide custom actions when traversing a {@link FunctionCall }
      * @param s the MethodCall which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(MethodCall s);
+    public Optional<down> preVisit(FunctionCall s,down fromParent);
     /**
      * specific previsit method.
      * Override this method to provide custom actions when traversing an {@link UnknownExpression }
      * @param s the UnknownExpression which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(UnknownExpression s);
+    public Optional<down> preVisit(UnknownExpression s,down fromParent);
     /**
      * specific previsit method.
      * Override this method to provide custom actions when traversing an {@link UnaryExpression }
      * @param s the UnaryExpression which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(UnaryExpression s);
+    public Optional<down> preVisit(UnaryExpression s,down fromParent);
     /**
      * specific previsit method.
      * Override this method to provide custom actions when traversing a {@link BinaryExpression }
      * @param s the BinaryExpression which is visited
      * @return <code>true</true> when you want to continue, <code>false</code> otherwise
      */
-    public boolean preVisit(BinaryExpression s);
+    public Optional<down> preVisit(BinaryExpression s, down fromParent);
 
     /**
      * specific postvisit method.
      * Override this method to provide custom actions when traversing an {@link IntegerConstant}
      * @param s the IntegerConstant which is visited
      */
-    public void postVisit(IntegerConstant s);
+    public up postVisit(IntegerConstant s,down fromTop);
     /**
      * specific postvisit method.
      * Override this method to provide custom actions when traversing an {@link StringLiteral}
      * @param s the IntegerConstant which is visited
      */
-    public void postVisit(StringLiteral s);
+    public up postVisit(StringLiteral s,down fromTop);
     /**
      * specific postvisit method.
      * Override this method to provide custom actions when traversing a {@link Variable}
      * @param s the Variable which is visited
      */
-    public void postVisit(Variable s);
+    public up postVisit(Variable s,down fromTop);
     /**
      * specific postvisit method.
-     * Override this method to provide custom actions when traversing a {@link MethodCall }
+     * Override this method to provide custom actions when traversing a {@link FunctionCall }
      * @param s the MethodCall which is visited
      */
-    public void postVisit(MethodCall s);
+    public up postVisit(FunctionCall m,down s,Stream<up> it);
     /**
      * specific postvisit method.
      * Override this method to provide custom actions when traversing an {@link UnknownExpression }
      * @param s the UnknownExpression which is visited
      */
-    public void postVisit(UnknownExpression s);
+    public up postVisit(UnknownExpression s,down fromParent);
     /**
      * specific postisit method.
      * Override this method to provide custom actions when traversing an {@link UnaryExpression }
      * @param s the UnaryExpression which is visited
      */
-    public void postVisit(UnaryExpression s);
+    public up postVisit(UnaryExpression s,up fromChild);
     /**
      * specific postvisit method.
      * Override this method to provide custom actions when traversing a {@link BinaryExpression }
      * @param s the BinaryExpression which is visited
      */
-    public void postVisit(BinaryExpression s);
+    public up postVisit(BinaryExpression s,up lhs, up rhs);
 }

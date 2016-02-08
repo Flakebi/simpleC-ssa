@@ -1,7 +1,7 @@
 package petter.cfg;
 
 import java.util.*;
-import petter.cfg.edges.MethodCall;
+import petter.cfg.edges.ProcedureCall;
 import petter.cfg.edges.Transition;
 
 class ForwardReachability extends AbstractPropagatingVisitor<Boolean> {
@@ -39,7 +39,7 @@ class ForwardReachability extends AbstractPropagatingVisitor<Boolean> {
 	}
 	
 	@Override
-	public Boolean visit(MethodCall ae, Boolean d) {
+	public Boolean visit(ProcedureCall ae, Boolean d) {
 		return d;
 	}
 	
@@ -65,9 +65,9 @@ public class Procedure implements java.io.Serializable,Analyzable{
     protected State begin;
     protected State end;
     protected String name;
-    private List<Integer> literals;
+    private List<Integer> locals;
     private List<Integer> params;
-    private CompilationUnit myclass;
+    private CompilationUnit cu;
 
     /**
      * Arbitrary annotations identified by key.
@@ -123,7 +123,7 @@ public class Procedure implements java.io.Serializable,Analyzable{
         setBegin(begin);
 	//this.end=end;
         setEnd(end);
-	this.literals=localvariables;
+	this.locals=localvariables;
 	this.params=params;
 	states = new HashSet<>();
 	collectStates(states,begin);
@@ -242,7 +242,7 @@ public class Procedure implements java.io.Serializable,Analyzable{
      * @return guess what?
      */
     public List<Integer> getLocalVariables(){
-        return literals;
+        return locals;
     }
     public boolean contains(State state){
         return states.contains(state);
@@ -259,18 +259,18 @@ public class Procedure implements java.io.Serializable,Analyzable{
      * @return guess what?
      */ 
     public List<Integer> getFields(){
-        if (myclass!=null){
-            return myclass.getFields();
+        if (cu!=null){
+            return cu.getGlobals();
         }
         else {
             return new ArrayList<>();
         }
     }
     public void setCompilationUnit(CompilationUnit cls) {
-        myclass=cls;
+        cu=cls;
     }
     public CompilationUnit getCompilationUnit(){
-        return myclass;
+        return cu;
     }
   
     // interface Analyzable:

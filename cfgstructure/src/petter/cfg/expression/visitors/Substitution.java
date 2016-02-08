@@ -10,9 +10,8 @@ import java.util.stream.Stream;
 import java.util.Map;
 import java.util.stream.Collectors;
 import petter.cfg.expression.BinaryExpression;
-import petter.cfg.expression.DefaultUpDownDFS;
 import petter.cfg.expression.Expression;
-import petter.cfg.expression.MethodCall;
+import petter.cfg.expression.FunctionCall;
 import petter.cfg.expression.UnaryExpression;
 import petter.cfg.expression.Variable;
 
@@ -34,8 +33,8 @@ public class Substitution extends DefaultUpDownDFS<Expression>{
         this.sigma=map;
     }
     @Override
-    public Expression postVisit(MethodCall m, Expression s, Stream<Expression> it) {
-        return new MethodCall(m.getName(),m.getType(),it.collect(Collectors.toList()));
+    public Expression postVisit(FunctionCall m, Expression s, Stream<Expression> it) {
+        return new FunctionCall(m.getName(),m.getType(),it.collect(Collectors.toList()));
     }
     @Override
     public Expression postVisit(BinaryExpression s, Expression lhs, Expression rhs) {

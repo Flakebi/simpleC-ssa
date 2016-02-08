@@ -1,7 +1,7 @@
 package petter.cfg;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
-import petter.cfg.edges.MethodCall;
+import petter.cfg.edges.ProcedureCall;
 import petter.cfg.edges.Nop;
 /**
  * the basic interface for all simple visitors.
@@ -53,5 +53,5 @@ public interface Visitor{
      */
     public boolean visit(Procedure ae);
     //public boolean visit(CFGLoopSeparator s);
-    public boolean visit(MethodCall ae);
+    public boolean visit(ProcedureCall ae);
 }

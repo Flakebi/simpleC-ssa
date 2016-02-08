@@ -1,4 +1,6 @@
 package petter.cfg.expression;
+import petter.cfg.expression.visitors.PropagatingDFS;
+import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -137,10 +139,6 @@ public class UnaryExpression implements Expression, java.io.Serializable{
      */
     public int getDegree(){
 	return e.getDegree();
-    }
-    public void substitute(Variable v, Expression ex){
-        if (e.equals(v)) e = ex;
-        else e.substitute(v,ex);
     }
     public boolean equals(Object o){
         if (! (o instanceof UnaryExpression)) return false;
