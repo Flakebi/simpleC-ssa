@@ -227,3 +227,10 @@ You can even visualize your fixpoint iteration, by overwriting the
 AbstractPropagatingVisitor.enter(a,d) method, to highlight the currently propagated
 dataflow value at the appropriate graph component, and draw each step into a
 different file, creating a sequence which visualizes your whole fixpoint computation.
+
+## See also
+
+For a simplified C Frontend for Ocaml, make sure to check out the following two projects:
+
+* copt https://versioncontrolseidl.in.tum.de/teaching/copt
+* copt2 https://versioncontrolseidl.in.tum.de/teaching/copt2
