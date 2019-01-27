@@ -60,20 +60,4 @@ public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<O
 //        ra.dataflowOf(s)
         return "";
     }
-
-    public static void main(String[] args) throws Exception {
-        String filePath = "/Users/denis.g/Developer/simpleC-ssa/analysis/RegisterAllocationFiles/" + "test.c";
-        CompilationUnit cu = petter.simplec.Compiler.parse(new File(filePath));
-
-        RegisterAllocationAnalysis ra = new RegisterAllocationAnalysis(cu);
-        Procedure main = cu.getProcedure("main");
-        DotLayout layout = new DotLayout("jpg","main.jpg");
-
-        ra.enter(main,new HashMap<>());
-        ra.fullAnalysis();
-
-        main.getStates().forEach(s -> layout.highlight(s, ra.annotationRepresentationOfState(s)));
-
-        layout.callDot(main);
-    }
 }
