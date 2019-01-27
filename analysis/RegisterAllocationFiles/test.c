@@ -1,21 +1,13 @@
-int b=42;
-int a[42];
-int **d;
-int f();
-int main(int a,int **f()){
-  a=42;
-  int c[42];
-  while (a!=0 ){
-    for(a=0;a<b;a++)
-      a--;
-    f();
-
-  }
-  switch(b){
-  case 42: return 0;
-  case 0: d[a]=*f();
-  case 4711: f();
-  defaut: break;
-  }
-  return a[0];
+int main(int argc, char **argv){
+    int t = 0;
+    int x = t;
+    int y = 1;
+    int z = x + y;
+    int x1 = x + 1;
+    int q = x1 + y;
+    int y1 = q + z;
+    int t1 = t + 1;
+    int x2 = x1 + 1;
+    int r = y1 + t;
+    int ret = x2 + r;
 }

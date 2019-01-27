@@ -1,49 +1,64 @@
 package analysis;
 
 import petter.cfg.*;
+import petter.cfg.edges.Assignment;
 import petter.cfg.edges.ProcedureCall;
+import petter.cfg.edges.Transition;
+import petter.cfg.expression.Expression;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
-
-public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Boolean>{
-
-    static Boolean lub(Boolean b1,Boolean b2){
-        if (b1==null) return b2;
-        if (b2==null) return b1;
-        return b1||b2;
-    }
-    static boolean lessoreq(Boolean b1,Boolean b2){
-        if (b1==null) return true;
-        if (b2==null) return false;
-        return ((!b1) || b2);
-    }
+public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<Object, Object>> {
+    // Works on SSA form only. Don't compute live ranges of the var
+    // Assumes there is only one live range (as if in SSA form)
 
     CompilationUnit cu;
 
-    public RegisterAllocationAnalysis(CompilationUnit cu){
-        super(true); // forward reachability
-        this.cu=cu;
+    public RegisterAllocationAnalysis(CompilationUnit cu) {
+        super(true);
+        this.cu = cu;
     }
 
-    public Boolean visit(ProcedureCall m, Boolean b){
-        // method calls need special attention; in this case, we just 
-        // continue with analysing the next state and triggering the analysis
-        // of the callee
-        enter(cu.getProcedure(m.getCallExpression().getName()),true);
-        return b;
-    }
-
-    public Boolean visit(State s, Boolean newflow){
-        Boolean oldflow = dataflowOf(s);
-
-        if (!lessoreq(newflow,oldflow)){
-            Boolean newval = lub(oldflow,newflow);
-            dataflowOf(s,newval);
-            return newval;
-        }
-
+    public Map<Object, Object> visit(ProcedureCall procedureCall, Map<Object, Object> objectObjectMap) {
         return null;
+    }
+
+    public Map<Object, Object> visit(State s, Map<Object, Object> newFlow) {
+        // let the new-flow have the vals of the previous state
+        dataflowOf(s).putAll(newFlow);
+
+        Iterator<Transition> iterator = s.getOutIterator();
+        Stream.generate(() -> null)
+                .takeWhile(x -> iterator.hasNext())
+                .map(n -> iterator.next())
+                .map(t -> (Assignment) t)
+                .map(Assignment::getLhs)
+                .forEach(a -> System.out.println(a.toString()));
+
+//        Assignment a = (Assignment) s.getOutIterator().next();
+//        System.out.println(a.getLhs().toString());
+
+
+//        Boolean oldflow = dataflowOf(s);
+//
+//        if (!lessoreq(newflow,oldflow)){
+//            Boolean newval = lub(oldflow,newflow);
+//            dataflowOf(s,newval);
+//            return newval;
+//        }
+
+        System.out.println("---");
+        return newFlow;
+    }
+
+    String annotationRepresentationOfState(State s) {
+//        ra.dataflowOf(s)
+        return "";
     }
 
     public static void main(String[] args) throws Exception {
@@ -51,16 +66,14 @@ public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Boole
         CompilationUnit cu = petter.simplec.Compiler.parse(new File(filePath));
 
         RegisterAllocationAnalysis ra = new RegisterAllocationAnalysis(cu);
-        Procedure foo = cu.getProcedure("main");
+        Procedure main = cu.getProcedure("main");
         DotLayout layout = new DotLayout("jpg","main.jpg");
 
-        ra.enter(foo,true);
+        ra.enter(main,new HashMap<>());
         ra.fullAnalysis();
 
-        for (State s: foo.getStates()){
-            layout.highlight(s,(ra.dataflowOf(s))+"");
-        }
+        main.getStates().forEach(s -> layout.highlight(s, ra.annotationRepresentationOfState(s)));
 
-        layout.callDot(foo);
+        layout.callDot(main);
     }
 }
