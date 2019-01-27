@@ -8,8 +8,7 @@ int main(int n) {
 	int r1;
 
 	if (i < 2) {
-	    int z = 10;
-	    r1 = i + y;
+	    r1 = y;
 	} else {
 	    int a = 10;
 	    r1 = a;

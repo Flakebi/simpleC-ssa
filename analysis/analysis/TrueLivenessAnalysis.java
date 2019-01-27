@@ -25,9 +25,9 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
             }
         };
 
-        CustomExpressionVisitor(HashSet<Expression> liveVars) {
+        CustomExpressionVisitor(Set<Expression> liveVars) {
             super(false);
-            exprs = liveVars;
+            exprs = new HashSet<>(liveVars);
         }
 
         @Override
@@ -58,31 +58,32 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
         return null;
     }
 
-    public Set<Expression> visit(State s, Set<Expression> newFlow) {
-        // let the new-flow have the vals of the previous state
-        HashSet<Expression> liveVars = new HashSet<>(newFlow);
-
+    public Set<Expression> visit(State s, Set<Expression> liveVars) {
         Iterator<Transition> iterator = s.getInIterator();
-        Set<Expression> union = Stream.generate(() -> null)
+        Set<Expression> union = Stream
+                .generate(() -> null)
                 .takeWhile(x -> iterator.hasNext())
                 .map(n -> {
-                    CustomExpressionVisitor visitor = new CustomExpressionVisitor(liveVars);
                     Transition transition = iterator.next();
+                    CustomExpressionVisitor visitor = new CustomExpressionVisitor(liveVars);
 
                     transition.backwardAccept(visitor);
-
-                    System.out.println("State id:" + s.getId());
-                    System.out.println(visitor.exprs);
                     return visitor.exprs;
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        dataflowOf(s, newFlow);
+        Set<Expression> oldVal = dataflowOf(s);
+        if (oldVal == null) {
+            dataflowOf(s, liveVars);
+        } else {
+            oldVal.addAll(liveVars);
+        }
+
         return union;
     }
 
     String annotationRepresentationOfState(State s) {
-        return dataflowOf(s).toString();
+        return "L[" + s.getId() + "]=" + dataflowOf(s).toString();
     }
 }
