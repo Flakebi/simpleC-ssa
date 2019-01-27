@@ -17,9 +17,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Expression>> {
+public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variable>> {
     class VariableVisitor extends AbstractExpressionVisitor {
-        Set<Expression> exprs = new HashSet<>();
+        Set<Variable> exprs = new HashSet<>();
 
         @Override
         public void postVisit(Variable s) {
@@ -29,9 +29,9 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
     }
 
     class CustomExpressionVisitor extends AbstractVisitor {
-        Set<Expression> exprs;
+        Set<Variable> exprs;
 
-        CustomExpressionVisitor(Set<Expression> liveVars) {
+        CustomExpressionVisitor(Set<Variable> liveVars) {
             super(false);
             exprs = new HashSet<>(liveVars);
         }
@@ -66,13 +66,13 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
         this.cu = cu;
     }
 
-    public Set<Expression> visit(ProcedureCall procedureCall, Set<Expression> expressionSet) {
+    public Set<Variable> visit(ProcedureCall procedureCall, Set<Variable> expressionSet) {
         return null;
     }
 
-    public Set<Expression> visit(State s, Set<Expression> liveVars) {
+    public Set<Variable> visit(State s, Set<Variable> liveVars) {
         Iterator<Transition> iterator = s.getInIterator();
-        Set<Expression> union = Stream
+        Set<Variable> union = Stream
                 .generate(() -> null)
                 .takeWhile(x -> iterator.hasNext())
                 .map(n -> {
@@ -83,14 +83,14 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
                     return visitor.exprs;
                 })
                 .reduce((s1, s2) -> {
-                    Set<Expression> intersection = new HashSet<>(s1);
+                    Set<Variable> intersection = new HashSet<>(s1);
                     intersection.retainAll(s2);
                     return intersection;
                 })
                 .orElse(new HashSet<>());
 
-        Set<Expression> oldVal = dataflowOf(s);
-        Set<Expression> newVal;
+        Set<Variable> oldVal = dataflowOf(s);
+        Set<Variable> newVal;
 
         if (oldVal == null) {
             newVal = liveVars;

@@ -5,59 +5,67 @@ import petter.cfg.edges.Assignment;
 import petter.cfg.edges.ProcedureCall;
 import petter.cfg.edges.Transition;
 import petter.cfg.expression.Expression;
+import petter.cfg.expression.Variable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<Object, Object>> {
-    // Works on SSA form only. Don't compute live ranges of the var
-    // Assumes there is only one live range (as if in SSA form)
-
+public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<Variable, Integer>> {
     CompilationUnit cu;
+    TrueLivenessAnalysis la;
 
-    public RegisterAllocationAnalysis(CompilationUnit cu) {
+    public RegisterAllocationAnalysis(CompilationUnit cu, TrueLivenessAnalysis la) {
         super(true);
         this.cu = cu;
+        this.la = la;
     }
 
-    public Map<Object, Object> visit(ProcedureCall procedureCall, Map<Object, Object> objectObjectMap) {
+    public Map<Variable, Integer> visit(ProcedureCall procedureCall, Map<Variable, Integer> objectObjectMap) {
         return null;
     }
 
-    public Map<Object, Object> visit(State s, Map<Object, Object> newFlow) {
-        // let the new-flow have the vals of the previous state
-        dataflowOf(s).putAll(newFlow);
+    public Map<Variable, Integer> visit(State s, Map<Variable, Integer> parentFlow) {
+        Map<Variable, Integer> oldFlow = dataflowOf(s);
+        Map<Variable, Integer> newFlow = new HashMap<>();
 
-        Iterator<Transition> iterator = s.getOutIterator();
-        Stream.generate(() -> null)
-                .takeWhile(x -> iterator.hasNext())
-                .map(n -> iterator.next())
-                .map(t -> (Assignment) t)
-                .map(Assignment::getLhs)
-                .forEach(a -> System.out.println(a.toString()));
+        Set<Integer> registersBusyFromParent = parentFlow.entrySet()
+                .stream()
+                .filter(e -> la.dataflowOf(s).contains(e.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toSet());
 
-//        Assignment a = (Assignment) s.getOutIterator().next();
-//        System.out.println(a.getLhs().toString());
+        for (Variable var : la.dataflowOf(s)) {
+            if (parentFlow.containsKey(var)) {
+                newFlow.put(var, parentFlow.get(var));
+            } else {
+                int firstAvailableReg = IntStream
+                        .iterate(0, i -> i + 1)
+                        .filter(i -> !newFlow.values().contains(i) && !registersBusyFromParent.contains(i))
+                        .findFirst()
+                        .getAsInt();
 
+                newFlow.put(var, firstAvailableReg);
+            }
+        }
 
-//        Boolean oldflow = dataflowOf(s);
-//
-//        if (!lessoreq(newflow,oldflow)){
-//            Boolean newval = lub(oldflow,newflow);
-//            dataflowOf(s,newval);
-//            return newval;
-//        }
+        if (oldFlow != null && oldFlow.equals(newFlow)) {
+            return null;
+        }
 
-        System.out.println("---");
+        dataflowOf(s, newFlow);
         return newFlow;
     }
 
     String annotationRepresentationOfState(State s) {
-//        ra.dataflowOf(s)
-        return "";
+        return dataflowOf(s)
+                .entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                .map(e -> "R" + e.getValue() + " = " + e.getKey().toString())
+                .collect(Collectors.joining("|"));
     }
 }
