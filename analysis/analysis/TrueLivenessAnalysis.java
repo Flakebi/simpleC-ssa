@@ -1,29 +1,35 @@
 package analysis;
 
-import petter.cfg.*;
-import petter.cfg.edges.*;
-import petter.cfg.expression.BinaryExpression;
+import petter.cfg.AbstractPropagatingVisitor;
+import petter.cfg.AbstractVisitor;
+import petter.cfg.CompilationUnit;
+import petter.cfg.State;
+import petter.cfg.edges.Assignment;
+import petter.cfg.edges.GuardedTransition;
+import petter.cfg.edges.ProcedureCall;
+import petter.cfg.edges.Transition;
 import petter.cfg.expression.Expression;
 import petter.cfg.expression.Variable;
 import petter.cfg.expression.visitors.AbstractExpressionVisitor;
-import petter.cfg.expression.visitors.ExpressionVisitor;
 
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Expression>> {
+    class VariableVisitor extends AbstractExpressionVisitor {
+        Set<Expression> exprs = new HashSet<>();
+
+        @Override
+        public void postVisit(Variable s) {
+            exprs.add(s);
+            super.postVisit(s);
+        }
+    }
+
     class CustomExpressionVisitor extends AbstractVisitor {
         Set<Expression> exprs;
-
-        ExpressionVisitor variableVisitor = new AbstractExpressionVisitor() {
-            @Override
-            public void postVisit(Variable s) {
-                exprs.add(s);
-                super.postVisit(s);
-            }
-        };
 
         CustomExpressionVisitor(Set<Expression> liveVars) {
             super(false);
@@ -32,17 +38,23 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
 
         @Override
         public boolean visit(GuardedTransition s) {
+            VariableVisitor variableVisitor = new VariableVisitor();
             s.getAssertion().accept(variableVisitor);
+            exprs.addAll(variableVisitor.exprs);
             return super.visit(s);
         }
 
         @Override
         public boolean visit(Assignment s) {
+            VariableVisitor variableVisitor = new VariableVisitor();
+
             if (exprs.contains(s.getLhs())) {
                 s.getRhs().accept(variableVisitor);
             }
 
             exprs.remove(s.getLhs());
+            exprs.addAll(variableVisitor.exprs);
+
             return super.visit(s);
         }
     }
@@ -70,15 +82,26 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Express
                     transition.backwardAccept(visitor);
                     return visitor.exprs;
                 })
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+                .reduce((s1, s2) -> {
+                    Set<Expression> intersection = new HashSet<>(s1);
+                    intersection.retainAll(s2);
+                    return intersection;
+                })
+                .orElse(new HashSet<>());
 
         Set<Expression> oldVal = dataflowOf(s);
+        Set<Expression> newVal;
+
         if (oldVal == null) {
-            dataflowOf(s, liveVars);
+            newVal = liveVars;
         } else {
-            oldVal.addAll(liveVars);
+            newVal = new HashSet<>(oldVal);
+            newVal.addAll(liveVars);
         }
+
+        dataflowOf(s, newVal);
+
+        if (oldVal != null && oldVal.equals(newVal)) { return null; }
 
         return union;
     }
