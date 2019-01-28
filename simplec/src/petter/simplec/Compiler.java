@@ -1,14 +1,13 @@
 package petter.simplec;
+import petter.constfolding.*;
 import petter.cfg.CompilationUnit;
 import petter.cfg.Procedure;
 import petter.cfg.State;
 import petter.cfg.edges.Transition;
 import petter.utils.AnnotatingSymbolFactory;
-import petter.simplec.Lexer;
-import petter.simplec.Parser;
-import java_cup.runtime.*;
 import java.io.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import petter.cfg.DotLayout;
@@ -40,10 +39,21 @@ public class Compiler{
         }
         try{
             CompilationUnit c = parse(new File(args[0]));
-            for (Procedure p : c.getProcedures().values()){
-                DotLayout layout = new DotLayout("png",args[0]+"."+p.getName()+".png");
-                layout.callDot(p);
+            final Map<String, Procedure> procedures = c.getProcedures();
+
+            final Procedure main = procedures.get("main");
+            final DotLayout layout = new DotLayout("png",args[0]+"."+main.getName()+".orig.png");
+            layout.callDot(main);
+
+            final Set<Integer> globalVariables = new HashSet<>(c.getGlobals());
+            ConstFolding constfold = new ConstFolding(globalVariables);
+            constfold.fold(main);
+
+            final DotLayout layout2 = new DotLayout("png",args[0]+"."+main.getName()+".const.png");
+            for (State state : main.getStates()) {
+                layout2.highlight(state, constfold.getValues(state).toString());
             }
+            layout2.callDot(main);
         }catch(FileNotFoundException fnfe){
             fnfe.printStackTrace();
             return;
