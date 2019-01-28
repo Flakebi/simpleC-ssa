@@ -60,20 +60,13 @@ public class ReachingDefinitionsAnalysis extends
             if (reachingDefinitions.equals(oldRD)) {
                 return reachingDefinitions;
             }
-            //return oldRD;
         }
-//        if (oldRD.equals(reachingDefinitions)) {
-//            return null;
-//        } else {
-//            oldRD.addAll(reachingDefinitions);
-//            dataflowOf(state, oldRD);
-//            return oldRD;
-//        }
-        System.out.println(state);
-        System.out.println(oldRD);
-        System.out.println(reachingDefinitions);
-        System.out.println(lessoreq(oldRD, reachingDefinitions));
-        System.out.println(lub(reachingDefinitions, oldRD));
+
+//        System.out.println(state);
+//        System.out.println(oldRD);
+//        System.out.println(reachingDefinitions);
+//        System.out.println(lessoreq(oldRD, reachingDefinitions));
+//        System.out.println(lub(reachingDefinitions, oldRD));
         if (!lessoreq(oldRD, reachingDefinitions)) {
             dataflowOf(state, lub(oldRD, reachingDefinitions));
             System.out.println(state);
@@ -85,13 +78,13 @@ public class ReachingDefinitionsAnalysis extends
 
     public Set<Tupel<Variable, Long>> visit(ProcedureCall procedureCall,
         Set<Tupel<Variable, Long>> reachingDefinitions) {
-        //enter(cu.getProcedure(procedureCall.getCallExpression().getName()), reachingDefinitions);
+//        enter(cu.getProcedure(procedureCall.getCallExpression().getName()), reachingDefinitions);
         return reachingDefinitions;
     }
 
 
     String annotateRepresentationOfState(State s) {
-        System.out.println(s);
+//        System.out.println(s);
         String output = dataflowOf(s)
             .stream()
             .map(reachingDefinition -> {
@@ -100,8 +93,8 @@ public class ReachingDefinitionsAnalysis extends
                 return str;
             })
             .collect(Collectors.joining(", "));
-        //System.out.println(s);
-        //System.out.println(output);
+//        System.out.println(s);
+//        System.out.println(output);
         return output;
     }
 }
