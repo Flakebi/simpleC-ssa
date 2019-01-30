@@ -75,7 +75,7 @@ public class Variable implements Expression, Annotatable, java.io.Serializable{
      *
      */
     public int hashCode(){
-      return (new Integer(id)).hashCode();
+      return id;
     }
     /**
      * check if two variables are equal

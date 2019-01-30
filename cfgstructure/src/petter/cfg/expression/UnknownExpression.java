@@ -3,6 +3,7 @@ import petter.cfg.expression.visitors.PropagatingDFS;
 import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import petter.cfg.expression.types.Type;
 /**
@@ -112,5 +113,29 @@ public class UnknownExpression implements Expression, java.io.Serializable{
 	return -1;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final UnknownExpression other = (UnknownExpression) obj;
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        return true;
+    }
 }
 

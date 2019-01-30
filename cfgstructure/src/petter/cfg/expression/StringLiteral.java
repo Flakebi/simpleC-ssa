@@ -3,6 +3,7 @@ import petter.cfg.expression.visitors.PropagatingDFS;
 import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import petter.cfg.expression.types.Char;
 import petter.cfg.expression.types.PointerTo;
@@ -127,6 +128,13 @@ public class StringLiteral implements Expression, java.io.Serializable{
     public boolean equals(Object o){
         if (! (o instanceof StringLiteral)) return false;
         return (((StringLiteral)o).value == value);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + value.hashCode();
+        return hash;
     }
 
     @Override

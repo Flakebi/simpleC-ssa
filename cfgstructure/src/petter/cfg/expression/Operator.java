@@ -172,4 +172,29 @@ public class Operator implements java.io.Serializable { //java.io.Externalizable
     public String toString(){
 	return names[code];
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + this.code;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Operator other = (Operator) obj;
+        if (this.code != other.code) {
+            return false;
+        }
+        return true;
+    }
 }

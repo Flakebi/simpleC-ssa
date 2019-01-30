@@ -3,6 +3,7 @@ import petter.cfg.expression.visitors.PropagatingDFS;
 import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import petter.cfg.expression.types.PointerTo;
 import petter.cfg.expression.types.Type;
@@ -156,6 +157,14 @@ public class UnaryExpression implements Expression, java.io.Serializable{
         if (this.sign.is(Operator.ADDRESSOF)) return new PointerTo(e.getType());
         if (this.sign.is(Operator.DEREF )) return  ((PointerTo)e.getType()).getInner();        
         return e.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 23 * hash + e.hashCode();
+        hash = 23 * hash + sign.hashCode();
+        return hash;
     }
   
 }

@@ -132,5 +132,12 @@ public class IntegerConstant implements Expression, java.io.Serializable{
     public Type getType() {
         return Int.create();
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + this.value;
+        return hash;
+    }
 }
 

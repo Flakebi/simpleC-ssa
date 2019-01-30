@@ -18,13 +18,13 @@ import petter.cfg.expression.visitors.NoVal;
  */
 public interface SyntheticComputationDFS<up> extends PropagatingDFS<up, NoVal>{
 
-    @Override public default Optional<NoVal> preVisit(BinaryExpression s, NoVal fromParent) { return Optional.empty(); }
-    @Override public default Optional<NoVal> preVisit(FunctionCall s, NoVal fromParent) { return Optional.empty();   }
-    @Override public default Optional<NoVal> preVisit(IntegerConstant s, NoVal fromParent) { return Optional.empty();    }
-    @Override public default Optional<NoVal> preVisit(StringLiteral s, NoVal fromParent) {    return Optional.empty();    }
-    @Override public default Optional<NoVal> preVisit(UnaryExpression s, NoVal fromParent) { return Optional.empty(); }
-    @Override public default Optional<NoVal> preVisit(UnknownExpression s, NoVal fromParent) {  return Optional.empty();    }
-    @Override public default Optional<NoVal> preVisit(Variable s, NoVal fromParent) { return Optional.empty();    }
+    @Override public default Optional<NoVal> preVisit(BinaryExpression s, NoVal fromParent) { return Optional.of(new NoVal()); }
+    @Override public default Optional<NoVal> preVisit(FunctionCall s, NoVal fromParent) { return Optional.of(new NoVal());   }
+    @Override public default Optional<NoVal> preVisit(IntegerConstant s, NoVal fromParent) { return Optional.of(new NoVal());    }
+    @Override public default Optional<NoVal> preVisit(StringLiteral s, NoVal fromParent) {    return Optional.of(new NoVal());    }
+    @Override public default Optional<NoVal> preVisit(UnaryExpression s, NoVal fromParent) { return Optional.of(new NoVal()); }
+    @Override public default Optional<NoVal> preVisit(UnknownExpression s, NoVal fromParent) {  return Optional.of(new NoVal());    }
+    @Override public default Optional<NoVal> preVisit(Variable s, NoVal fromParent) { return Optional.of(new NoVal());    }
     @Override public default up postVisit(IntegerConstant s, NoVal fromTop) {        return postVisit(s);    }
     @Override public default up postVisit(StringLiteral s, NoVal fromTop) {        return postVisit(s);    }
     @Override public default up postVisit(UnknownExpression s, NoVal fromParent) {        return postVisit(s);    }

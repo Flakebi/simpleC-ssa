@@ -149,6 +149,7 @@ public class Procedure implements java.io.Serializable,Analyzable{
     }
     public void refreshStates(){
         states=new HashSet<>();
+        transen = null;
         collectStates(states, begin);
         stateHash = fillHash(states);
     }

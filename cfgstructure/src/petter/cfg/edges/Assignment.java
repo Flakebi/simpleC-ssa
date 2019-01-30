@@ -36,6 +36,18 @@ public class Assignment extends Transition {
     public Expression getRhs(){
 	return rhs;
     }
+    /**
+     * set lefthandside of Assignment.
+     */
+    public void setLhs(Expression lhs){
+	this.lhs = lhs;
+    }
+    /**
+     * set righthandside of Assignment.
+     */
+    public void setRhs(Expression rhs){
+	this.rhs = rhs;
+    }
    /**
      * string representation of the Assignment
      * @return guess what?

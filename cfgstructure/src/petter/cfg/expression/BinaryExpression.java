@@ -3,6 +3,7 @@ import petter.cfg.expression.visitors.PropagatingDFS;
 import petter.cfg.expression.visitors.ExpressionVisitor;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import petter.cfg.expression.types.Int;
 import petter.cfg.expression.types.PointerTo;
@@ -235,5 +236,13 @@ public class BinaryExpression implements Expression, java.io.Serializable{
         return right.getType();
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + left.hashCode();
+        hash = 29 * hash + right.hashCode();
+        hash = 29 * hash + sign.hashCode();
+        return hash;
+    }
 }
 
