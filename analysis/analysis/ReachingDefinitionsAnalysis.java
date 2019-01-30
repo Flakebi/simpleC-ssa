@@ -19,7 +19,7 @@ public class ReachingDefinitionsAnalysis extends
         if (s1 == null) return s2;
         if (s2 == null) return s1;
         HashSet<Tupel<Variable, Long>> res = new HashSet<>();
-        // Intersection
+        // Union
         res.addAll(s1);
         res.addAll(s2);
         return res;
@@ -40,15 +40,16 @@ public class ReachingDefinitionsAnalysis extends
 
     public Set<Tupel<Variable, Long>> visit(Assignment assignment,
         Set<Tupel<Variable, Long>> reachingDefinitions) {
+        Set<Tupel<Variable, Long>> newDefinitions = new HashSet<>(reachingDefinitions);
         if (assignment.getLhs() instanceof Variable) {
             Variable variable = (Variable) assignment.getLhs();
-            reachingDefinitions.removeIf((rd) ->
-                rd.a.toString().equals(variable.toString())
+            newDefinitions.removeIf((rd) ->
+                rd.a.equals(variable)
             );
-            reachingDefinitions
+            newDefinitions
                 .add(new Tupel<Variable, Long>(variable, assignment.getDest().getId()));
         }
-        return reachingDefinitions;
+        return newDefinitions;
     }
 
     public Set<Tupel<Variable, Long>> visit(State state,
