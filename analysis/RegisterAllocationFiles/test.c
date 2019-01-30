@@ -10,4 +10,5 @@ int main(int argc, char **argv){
     int x2 = x1 + 1;
     int r = y1 + t;
     int ret = x2 + r;
+    return ret;
 }

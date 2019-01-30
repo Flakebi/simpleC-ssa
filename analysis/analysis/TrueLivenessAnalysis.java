@@ -8,7 +8,6 @@ import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.ProcedureCall;
 import petter.cfg.edges.Transition;
-import petter.cfg.expression.Expression;
 import petter.cfg.expression.Variable;
 import petter.cfg.expression.visitors.AbstractExpressionVisitor;
 
@@ -67,17 +66,19 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
     }
 
     public Set<Variable> visit(ProcedureCall procedureCall, Set<Variable> expressionSet) {
-        return null;
+        return expressionSet;
     }
 
-    public Set<Variable> visit(State s, Set<Variable> liveVars) {
-        Iterator<Transition> iterator = s.getInIterator();
-        Set<Variable> union = Stream
+    public Set<Variable> visit(State state, Set<Variable> parentFlow) {
+        Iterator<Transition> iterator = state.getInIterator();
+
+        Set<Variable> oldFlow = dataflowOf(state);
+        Set<Variable> newFlow = Stream
                 .generate(() -> null)
                 .takeWhile(x -> iterator.hasNext())
                 .map(n -> {
                     Transition transition = iterator.next();
-                    CustomExpressionVisitor visitor = new CustomExpressionVisitor(liveVars);
+                    CustomExpressionVisitor visitor = new CustomExpressionVisitor(parentFlow);
 
                     transition.backwardAccept(visitor);
                     return visitor.exprs;
@@ -89,21 +90,27 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
                 })
                 .orElse(new HashSet<>());
 
-        Set<Variable> oldVal = dataflowOf(s);
-        Set<Variable> newVal;
-
-        if (oldVal == null) {
-            newVal = liveVars;
-        } else {
-            newVal = new HashSet<>(oldVal);
-            newVal.addAll(liveVars);
+        if (!lessOrEq(parentFlow, oldFlow)) {
+            dataflowOf(state, lub(oldFlow, parentFlow));
+            return newFlow;
         }
 
-        dataflowOf(s, newVal);
+        return null;
+    }
 
-        if (oldVal != null && oldVal.equals(newVal)) { return null; }
+    private static Set<Variable> lub(Set<Variable> oldFlow, Set<Variable> newFlow) {
+        if (oldFlow == null) {
+            return newFlow;
+        }
 
-        return union;
+        newFlow.addAll(oldFlow);
+        return newFlow;
+    }
+
+    private static boolean lessOrEq(Set<Variable> s1, Set<Variable> s2) {
+        if (s1 == null) return true;
+        if (s2 == null) return false;
+        return s2.containsAll(s1);
     }
 
     String annotationRepresentationOfState(State s) {

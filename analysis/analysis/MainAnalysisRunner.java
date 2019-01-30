@@ -35,7 +35,7 @@ public class MainAnalysisRunner {
 
         // true liveness
         TrueLivenessAnalysis la = new TrueLivenessAnalysis(cu);
-        Set<Variable> liveExprs = new HashSet<Variable>();
+        Set<Variable> liveExprs = new HashSet<>();
         Variable returnVar = new Variable(0, "return", null);
         liveExprs.add(returnVar);
 
