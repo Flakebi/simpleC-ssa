@@ -12,8 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import petter.cfg.DotLayout;
+public class Compiler{
 
-public class Compiler {
     public static CompilationUnit parse(File f) throws Exception{
             InputStream is = new FileInputStream(f);
             AnnotatingSymbolFactory sf = new AnnotatingSymbolFactory(f);
@@ -31,5 +31,26 @@ public class Compiler {
             }
             return cu;
         
+    }
+
+    public static void main(String[] args){
+        if (args.length<1) {
+            System.out.println("Usage: java -jar Compiler.jar input.simplec");
+            return;
+        }
+        try{
+            CompilationUnit c = parse(new File(args[0]));
+            for (Procedure p : c.getProcedures().values()){
+                DotLayout layout = new DotLayout("png",args[0]+"."+p.getName()+".png");
+                layout.callDot(p);
+            }
+        }catch(FileNotFoundException fnfe){
+            fnfe.printStackTrace();
+            return;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
     }
 }
