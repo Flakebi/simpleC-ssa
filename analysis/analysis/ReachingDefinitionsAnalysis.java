@@ -28,7 +28,7 @@ public class ReachingDefinitionsAnalysis extends
     static boolean lessoreq(Set<Tupel<Variable, Long>> s1, Set<Tupel<Variable, Long>> s2) {
         if (s1 == null) return true;
         if (s2 == null) return false;
-        return s1.containsAll(s2);
+        return s2.containsAll(s1);
     }
 
     CompilationUnit cu;
@@ -68,7 +68,7 @@ public class ReachingDefinitionsAnalysis extends
 //        System.out.println(reachingDefinitions);
 //        System.out.println(lessoreq(oldRD, reachingDefinitions));
 //        System.out.println(lub(reachingDefinitions, oldRD));
-        if (!lessoreq(oldRD, reachingDefinitions)) {
+        if (!lessoreq(reachingDefinitions, oldRD)) {
             dataflowOf(state, lub(oldRD, reachingDefinitions));
             System.out.println(state);
             System.out.println(lub(oldRD, reachingDefinitions));
