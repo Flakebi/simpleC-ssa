@@ -2,6 +2,7 @@ package petter.utils;
 import petter.cfg.Annotatable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Tupel<T,U> implements Annotatable{
     public T a; 
@@ -46,6 +47,19 @@ public class Tupel<T,U> implements Annotatable{
         annotations.putAll(a);
     }
 
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof Tupel)) {
+            return false;
+        }
+        Tupel<?, ?> tupel = (Tupel<?, ?>) object;
+        return a.equals(tupel.a) &&
+            b.equals(tupel.b);
+    }
 
-
+    public int hashCode() {
+        return Objects.hash(a, b);
+    }
 }

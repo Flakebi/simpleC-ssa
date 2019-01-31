@@ -41,14 +41,22 @@ public class ReachingDefinitionsAnalysis extends
     public Set<Tupel<Variable, Long>> visit(Assignment assignment,
         Set<Tupel<Variable, Long>> reachingDefinitions) {
         Set<Tupel<Variable, Long>> newDefinitions = new HashSet<>(reachingDefinitions);
+        System.out.println(newDefinitions.size());
         if (assignment.getLhs() instanceof Variable) {
             Variable variable = (Variable) assignment.getLhs();
-            newDefinitions.removeIf((rd) ->
-                rd.a.equals(variable)
+            newDefinitions.removeIf((rd) -> {
+                    boolean res = rd.a.toString().equals(variable.toString());
+                    if (res) {
+                       // System.out.println("removed " + rd.a.toString() + ", " + rd.b);
+                    }
+                    return res;
+                }
             );
+            System.out.println("remo " + variable.toString() + ", " + newDefinitions.size());
             newDefinitions
                 .add(new Tupel<Variable, Long>(variable, assignment.getDest().getId()));
         }
+        System.out.println(newDefinitions.size());
         return newDefinitions;
     }
 
