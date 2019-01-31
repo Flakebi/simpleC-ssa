@@ -23,8 +23,8 @@ public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<V
         this.la = la;
     }
 
-    public Map<Variable, Integer> visit(ProcedureCall procedureCall, Map<Variable, Integer> objectObjectMap) {
-        return null;
+    public Map<Variable, Integer> visit(ProcedureCall procedureCall, Map<Variable, Integer> variableRegisterMap) {
+        return variableRegisterMap;
     }
 
     public Map<Variable, Integer> visit(State state, Map<Variable, Integer> parentFlow) {
