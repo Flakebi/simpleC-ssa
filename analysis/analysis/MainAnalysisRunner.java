@@ -3,13 +3,14 @@ package analysis;
 import petter.cfg.CompilationUnit;
 import petter.cfg.DotLayout;
 import petter.cfg.Procedure;
+import petter.cfg.State;
+import petter.cfg.edges.Transition;
 import petter.cfg.expression.Expression;
 import petter.cfg.expression.Variable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
 import petter.utils.Tupel;
 
 public class MainAnalysisRunner {
@@ -21,18 +22,22 @@ public class MainAnalysisRunner {
         String filePath = args[0];
         CompilationUnit cu = petter.simplec.Compiler.parse(new File(filePath));
         Procedure main = cu.getProcedure("main");
+        SSATransform transform = new SSATransform(main);
 
-
+        transform.processJoins();
+        //transform.insertAssignment(main.);
         // reaching definitions
         ReachingDefinitionsAnalysis rda = new ReachingDefinitionsAnalysis(cu);
+
         rda.enter(main, new HashSet<>());
         rda.fullAnalysis();
+
 
         DotLayout layout = new DotLayout("jpg","results/reaching_definitions.jpg");
         main.getStates().forEach(s -> layout.highlight(s, rda.annotateRepresentationOfState(s)));
         layout.callDot(main);
 
-
+/*
         // true liveness
         TrueLivenessAnalysis la = new TrueLivenessAnalysis(cu);
         Set<Variable> liveExprs = new HashSet<>();
@@ -54,6 +59,6 @@ public class MainAnalysisRunner {
 
         DotLayout layoutRA = new DotLayout("jpg","results/register_allocation.jpg");
         main.getStates().forEach(s -> layoutRA.highlight(s, ra.annotationRepresentationOfState(s)));
-        layoutRA.callDot(main);
+        layoutRA.callDot(main);*/
     }
 }
