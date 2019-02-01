@@ -18,7 +18,7 @@ public class SSATransform extends AbstractVisitor {
         procedure = p;
     }
 
-    void processJoins() {
+    private List<State> getJoins() {
         List<State> joins = new ArrayList<>();
         procedure.getStates().forEach(s -> {
             AtomicInteger num = new AtomicInteger();
@@ -26,11 +26,21 @@ public class SSATransform extends AbstractVisitor {
             if (num.get() > 1)
                 joins.add(s);
         });
+        return joins;
+    }
+
+    void processJoins() {
+        var joins = getJoins();
         for (State state : joins) {
             List<State> prec = new ArrayList<>();
             state.getIn().forEach(t -> prec.add(t.getSource()));
             for (State state1 : prec) insertNOP(state1, state);
         }
+    }
+
+    void insertAssignments(ReachingDefinitionsAnalysis rda) {
+        var joins = getJoins();
+
     }
 
     private void insertNOP(State s1, State s2) {

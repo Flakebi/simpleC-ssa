@@ -3,6 +3,7 @@ import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.ProcedureCall;
 import petter.cfg.edges.Nop;
+import petter.cfg.edges.Psi;
 /**
  * the basic interface for all simple visitors.
  * You have to implement this interface to visit each node in a CFG. If You want to implement fixpoint algorithms, You could inherit from the abstract class {@link AbstractCFGVisitor}.
@@ -54,4 +55,5 @@ public interface Visitor{
     public boolean visit(Procedure ae);
     //public boolean visit(CFGLoopSeparator s);
     public boolean visit(ProcedureCall ae);
+    public boolean visit(Psi ae);
 }

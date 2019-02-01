@@ -2,6 +2,7 @@ package petter.cfg;
 import petter.cfg.edges.Nop;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.Assignment;
+import petter.cfg.edges.Psi;
 
 import java.util.Queue;
 import java.util.Iterator;
@@ -206,5 +207,6 @@ public abstract class AbstractPropagatingVisitor<T> implements PropagatingVisito
     public T visit(Assignment s, T d)       { return defaultBehaviour(s,d); }
     public T visit(GuardedTransition s, T d)	   { return defaultBehaviour(s,d); }
     public T visit(Procedure s, T d)	           { return defaultBehaviour(s,d); }
+    public T visit(Psi s, T d)                  { return defaultBehaviour(s,d); }
     // End Interface CFGPropagatingVisitor
 }
