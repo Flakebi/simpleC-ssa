@@ -53,8 +53,25 @@ public class Psi extends Transition {
      * string representation of the Assignment
      * @return guess what?
      */
+
+    public void addExpr(Expression lhs, Expression rhs) {
+        this.lhs.add(lhs);
+        this.rhs.add(rhs);
+    }
+
+    public void setOneLhs(Expression lhs, int ind) {
+        this.lhs.set(ind, lhs);
+    }
+
+    public void setOneRhs(Expression rhs, int ind) {
+        this.rhs.set(ind, rhs);
+    }
+
     public String toString(){
-        return "";
+        String s = "";
+        for (int i = 0; i < lhs.size(); i++)
+            s += lhs.get(i).toString() + " = " + rhs.get(i).toString() + ";\r\n";
+        return s;
     }
     // interface Analyzable:
     public void forwardAccept(Visitor v){

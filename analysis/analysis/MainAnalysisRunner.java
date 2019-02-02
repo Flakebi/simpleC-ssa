@@ -11,6 +11,7 @@ import petter.cfg.expression.Variable;
 import java.io.File;
 import java.util.*;
 
+import petter.cfg.expression.types.Char;
 import petter.utils.Tupel;
 
 public class MainAnalysisRunner {
@@ -25,16 +26,22 @@ public class MainAnalysisRunner {
         SSATransform transform = new SSATransform(main);
 
         transform.processJoins();
-        //transform.insertAssignment(main.);
         // reaching definitions
         ReachingDefinitionsAnalysis rda = new ReachingDefinitionsAnalysis(cu);
 
         rda.enter(main, new HashSet<>());
         rda.fullAnalysis();
+        transform.insertAssignments(rda);
 
+        ReachingDefinitionsAnalysis rda1 = new ReachingDefinitionsAnalysis(cu);
+
+        rda1.enter(main, new HashSet<>());
+        rda1.fullAnalysis();
+
+        transform.replaceVars(rda1);
 
         DotLayout layout = new DotLayout("jpg","results/reaching_definitions.jpg");
-        main.getStates().forEach(s -> layout.highlight(s, rda.annotateRepresentationOfState(s)));
+        main.getStates().forEach(s -> layout.highlight(s, rda1.annotateRepresentationOfState(s)));
         layout.callDot(main);
 
 /*
