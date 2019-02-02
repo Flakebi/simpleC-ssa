@@ -80,10 +80,15 @@ public class SSATransform extends AbstractVisitor {
                     String name = (String)lhs.getAnnotation("external name");
                     if (name != "return") {
                         name += transition.getDest().getId();
-                        Variable newVar = new Variable(id, name, lhs.getType());
-                        assignment.setLhs(newVar);
-                        id++;
-                        addedVars.put(name, newVar);
+                        if (addedVars.get(name) == null) {
+                            Variable newVar = new Variable(id, name, lhs.getType());
+                            assignment.setLhs(newVar);
+                            id++;
+                            addedVars.put(name, newVar);
+                        }
+                        else {
+                            assignment.setLhs(addedVars.get(name));
+                        }
                     }
                 }
             }
@@ -97,10 +102,16 @@ public class SSATransform extends AbstractVisitor {
                         String name = (String)lhs.getAnnotation("external name");
                         if (name != "return") {
                             name += transition.getDest().getId();
-                            Variable newVar = new Variable(id, name, lhs.getType());
-                            psi.setOneLhs(newVar, i);
-                            id++;
-                            addedVars.put(name, newVar);
+                            if (addedVars.get(name) == null) {
+                                Variable newVar = new Variable(id, name, lhs.getType());
+                                psi.setOneLhs(newVar, i);
+                                id++;
+                                addedVars.put(name, newVar);
+                            }
+                            else
+                            {
+                                psi.setOneLhs(addedVars.get(name), i);
+                            }
                         }
                     }
                 }
