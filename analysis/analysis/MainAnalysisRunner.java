@@ -44,7 +44,7 @@ public class MainAnalysisRunner {
         main.getStates().forEach(s -> layout.highlight(s, rda1.annotateRepresentationOfState(s)));
         layout.callDot(main);
 
-/*
+
         // true liveness
         TrueLivenessAnalysis la = new TrueLivenessAnalysis(cu);
         Set<Variable> liveExprs = new HashSet<>();
@@ -66,6 +66,6 @@ public class MainAnalysisRunner {
 
         DotLayout layoutRA = new DotLayout("jpg","results/register_allocation.jpg");
         main.getStates().forEach(s -> layoutRA.highlight(s, ra.annotationRepresentationOfState(s)));
-        layoutRA.callDot(main);*/
+        layoutRA.callDot(main);
     }
 }
