@@ -1,3 +1,4 @@
+.idea/workspace.xml
 /cfgstructure/etc/
 /cfgstructure/build/
 /cfgstructure/dist/
@@ -6,3 +7,4 @@
 /simplec/generated/
 /simplec/java/
 /simplec/*.png
+simplec/build/classes/

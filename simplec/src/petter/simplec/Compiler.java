@@ -13,11 +13,7 @@ import java.util.Set;
 
 import petter.cfg.DotLayout;
 public class Compiler{
-//    public static Lexer syntaxHighlighter(File f) throws Exception{
-//	InputStream is = new FileInputStream(f);
-//	AnnotatingSymbolFactory sf = new AnnotatingSymbolFactory(f);
-//	return new Lexer(is,sf,true);
-//    }
+
     public static CompilationUnit parse(File f) throws Exception{
             InputStream is = new FileInputStream(f);
             AnnotatingSymbolFactory sf = new AnnotatingSymbolFactory(f);
@@ -36,6 +32,7 @@ public class Compiler{
             return cu;
         
     }
+
     public static void main(String[] args){
         if (args.length<1) {
             System.out.println("Usage: java -jar Compiler.jar input.simplec");
