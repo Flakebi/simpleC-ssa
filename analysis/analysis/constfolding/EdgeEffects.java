@@ -1,4 +1,4 @@
-package petter.constfolding;
+package analysis.constfolding;
 
 import petter.cfg.edges.*;
 import petter.cfg.expression.Expression;

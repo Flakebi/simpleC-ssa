@@ -1,4 +1,4 @@
-package petter.constfolding;
+package analysis.constfolding;
 
 class Value {
 

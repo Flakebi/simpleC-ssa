@@ -1,4 +1,4 @@
-package petter.constfolding;
+package analysis.constfolding;
 
 import petter.cfg.expression.*;
 import petter.cfg.expression.types.Int;

@@ -1,4 +1,4 @@
-package petter.constfolding;
+package analysis.constfolding;
 
 import petter.cfg.Procedure;
 import petter.cfg.State;
@@ -11,9 +11,7 @@ import petter.cfg.expression.Operator;
 import petter.cfg.expression.Variable;
 import petter.utils.Tupel;
 
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public class ConstFolding {

@@ -1,5 +1,6 @@
 package analysis;
 
+import analysis.constfolding.ConstFolding;
 import petter.cfg.CompilationUnit;
 import petter.cfg.DotLayout;
 import petter.cfg.Procedure;
@@ -45,6 +46,14 @@ public class MainAnalysisRunner {
         main.getStates().forEach(s -> layout.highlight(s, rda1.annotateRepresentationOfState(s)));
         layout.callDot(main);
 
+        // constant propagation
+        final Set<Integer> globalVariables = new HashSet<>(cu.getGlobals());
+        final var cf = new ConstFolding(globalVariables);
+        cf.fold(main);
+
+        DotLayout layoutCf = new DotLayout("jpg","results/constfolding.jpg");
+        main.getStates().forEach(s -> layoutCf.highlight(s, cf.getValues(s).toString()));
+        layoutCf.callDot(main);
 
         // true liveness
         TrueLivenessAnalysis la = new TrueLivenessAnalysis(cu);

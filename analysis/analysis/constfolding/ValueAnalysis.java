@@ -1,13 +1,11 @@
-package petter.constfolding;
+package analysis.constfolding;
 
-import com.sun.javafx.geom.Edge;
 import petter.cfg.AbstractPropagatingVisitor;
 import petter.cfg.State;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.Nop;
 import petter.cfg.edges.ProcedureCall;
-import petter.cfg.expression.*;
 
 import java.util.Set;
 
