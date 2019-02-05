@@ -4,6 +4,7 @@ import petter.cfg.expression.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Values {
 
@@ -31,15 +32,42 @@ public class Values {
     }
 
     Values with(Variable var, Value value) {
+        final var newMapping =
+                mapping != null
+                        ? (HashMap<Variable, Value>) mapping.clone()
+                        : new HashMap<Variable, Value>();
+
         if (!value.isTop()) {
-            final HashMap<Variable, Value> newMapping =
-                    mapping != null
-                    ? (HashMap<Variable, Value>) mapping.clone()
-                    : new HashMap<>();
             newMapping.put(var, value);
+        } else {
+            newMapping.remove(var);
+        }
+
+        if (!newMapping.isEmpty()) {
             return makeValues(newMapping);
         } else {
-            return this;
+            return top;
+        }
+    }
+
+    Values with(Map<Variable, Value> values) {
+        final var newMapping =
+                mapping != null
+                ? (HashMap<Variable, Value>) mapping.clone()
+                : new HashMap<Variable, Value>();
+
+        for (var e : values.entrySet()) {
+            if (!e.getValue().isTop()) {
+                newMapping.put(e.getKey(), e.getValue());
+            } else {
+                newMapping.remove(e.getKey());
+            }
+        }
+
+        if (!newMapping.isEmpty()) {
+            return makeValues(newMapping);
+        } else {
+            return top;
         }
     }
 

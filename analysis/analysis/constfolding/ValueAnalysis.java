@@ -2,10 +2,7 @@ package analysis.constfolding;
 
 import petter.cfg.AbstractPropagatingVisitor;
 import petter.cfg.State;
-import petter.cfg.edges.Assignment;
-import petter.cfg.edges.GuardedTransition;
-import petter.cfg.edges.Nop;
-import petter.cfg.edges.ProcedureCall;
+import petter.cfg.edges.*;
 
 import java.util.Set;
 
@@ -37,6 +34,11 @@ class ValueAnalysis extends AbstractPropagatingVisitor<Values> {
     @Override
     public Values visit(GuardedTransition guarded, Values d) {
         return EdgeEffects.evalGuarded(globalVariables, guarded, d);
+    }
+
+    @Override
+    public Values visit(Psi psi, Values d) {
+        return EdgeEffects.evalPsi(globalVariables, psi, d);
     }
 
     @Override

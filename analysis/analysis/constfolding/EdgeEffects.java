@@ -5,6 +5,8 @@ import petter.cfg.expression.Expression;
 import petter.cfg.expression.Operator;
 import petter.cfg.expression.Variable;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class EdgeEffects {
@@ -33,6 +35,27 @@ public class EdgeEffects {
         return d;
     }
 
+    static Values evalPsi(Set<Integer> gv, Psi psi, Values d) {
+        final var effects = new HashMap<Variable, Value>();
+
+        final var lhs = psi.getLhs();
+        final var rhs = psi.getRhs();
+        assert (lhs.size() == rhs.size());
+
+        for (var r : rhs) {
+            effects.put((Variable) r, Value.top);
+        }
+
+        for (var i = 0; i < lhs.size(); ++i) {
+            var l = (Variable) lhs.get(i);
+            var r = (Variable) rhs.get(i);
+
+            effects.put(l, d.getValue(r));
+        }
+
+        return d.with(effects);
+    }
+
     static Values evalTransition(Set<Integer> gv, Transition transition, Values d) {
         if (transition instanceof Assignment) {
             return evalAssignment(gv, (Assignment) transition, d);
@@ -42,6 +65,8 @@ public class EdgeEffects {
             return evalGuarded(gv, (GuardedTransition) transition, d);
         } else if (transition instanceof  ProcedureCall) {
             return evalProcedureCall(gv, (ProcedureCall) transition, d);
+        } else if (transition instanceof Psi) {
+            return evalPsi(gv, (Psi) transition, d);
         }
 
         throw new RuntimeException("Missing case for some transition");
