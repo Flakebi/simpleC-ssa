@@ -23,7 +23,8 @@ public class MainAnalysisRunner {
         String filePath = args[0];
         CompilationUnit cu = petter.simplec.Compiler.parse(new File(filePath));
         Procedure main = cu.getProcedure("main");
-        SSATransform transform = new SSATransform(main);
+        SSATransform transform = new SSATransform();
+        transform.procedure = main;
 
         transform.processJoins();
         // reaching definitions

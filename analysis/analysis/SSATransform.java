@@ -14,16 +14,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class SSATransform extends AbstractVisitor {
-    private Procedure procedure;
-    private ReachingDefinitionsAnalysis rda;
-    public SSATransform(CompilationUnit cu) {
-        super(true);
-        procedure = cu.getProcedure("main");
-    }
-    SSATransform(Procedure p) {
-        super(true);
-        procedure = p;
+public class SSATransform {
+    public Procedure procedure;
+    SSATransform() {
     }
 
     private List<State> getJoins() {
@@ -37,13 +30,21 @@ public class SSATransform extends AbstractVisitor {
         return joins;
     }
 
-    void processJoins() {
-        var joins = getJoins();
-        for (State state : joins) {
-            List<State> prec = new ArrayList<>();
-            state.getIn().forEach(t -> prec.add(t.getSource()));
-            for (State state1 : prec) insertNOP(state1, state);
+    private  List<Transition> getJoinEdges() {
+        List<Transition> joinEdges = new ArrayList<>();
+        for (State s : procedure.getStates()) {
+            AtomicInteger num = new AtomicInteger();
+            s.getIn().forEach(t -> num.getAndIncrement());
+            if (num.get() > 1)
+                s.getIn().forEach(joinEdges::add);
         }
+        return joinEdges;
+    }
+
+    void processJoins() {
+        var joins = getJoinEdges();
+        for (Transition transition : joins)
+            insertNOP(transition);
     }
 
     void insertAssignments(ReachingDefinitionsAnalysis rda) {
@@ -54,17 +55,19 @@ public class SSATransform extends AbstractVisitor {
                     .stream()
                     .map(reachingDefinition -> reachingDefinition.a)
                     .collect(Collectors.toList());
-            List<Variable> used = new ArrayList<>();
-            for (int i = 0; i < variables.size(); i++)
-                for (int j = i + 1; j < variables.size(); j++)
-                    if (variables.get(i).equals(variables.get(j)) && !used.contains(variables.get(i))) {
-                        Variable variable = variables.get(i);
-                        used.add(variable);
-                        state.getIn().forEach(t -> {
-                            Psi psi = ((Psi)t);
-                            psi.addExpr(variable, variable);
-                        });
-                    }
+            Map<Variable, Long> counts = variables
+                    .stream()
+                    .collect(
+                            Collectors.groupingBy(v -> v, Collectors.counting())
+                    );
+            counts.forEach((v,c) -> {
+                if (c >= 2) {
+                    state.getIn().forEach(t -> {
+                        Psi psi = (Psi)t;
+                        psi.addExpr(v, v);
+                    });
+                }
+            });
         }
     }
 
@@ -162,22 +165,13 @@ public class SSATransform extends AbstractVisitor {
         return e;
     }
 
-    private void insertNOP(State s1, State s2) {
-        var outEdges = s1.getOut();
-        final boolean[] connected = {false};
-        final Transition[] edges = new Transition[1];
-        outEdges.forEach(s -> {
-            if (s.getDest().equals(s2)) {
-                connected[0] = true;
-                edges[0] = s;
-            }
-        });
-        if (connected[0]) {
-            State newState = new State();
-            edges[0].setDest(newState);
-            TransitionFactory.createPsi(newState, s2, new ArrayList<>(), new ArrayList<>());
-            s2.deleteInEdge(edges[0]);
-            s1.getMethod().refreshStates();
-        }
+    private void insertNOP(Transition transition) {
+        State s1 = transition.getSource();
+        State s2 = transition.getDest();
+        State newState = new State();
+        transition.setDest(newState);
+        TransitionFactory.createPsi(newState, s2, new ArrayList<>(), new ArrayList<>());
+        s2.deleteInEdge(transition);
+        s1.getMethod().refreshStates();
     }
 }

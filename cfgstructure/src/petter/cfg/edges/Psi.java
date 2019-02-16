@@ -11,13 +11,6 @@ import java.util.List;
 public class Psi extends Transition {
     private List<Expression> lhs;
     private List<Expression> rhs;
-    /**
-     * construct an new CFGAssignmentEdge
-     * @param source  start of edge
-     * @param dest    end of edge
-     * @param lhs    lefthandside of an AssignmentEdge is a variable
-     * @param rhs   righthandside of an AssignmentEdge is an expression
-     */
     public Psi(State source, State dest, List<Expression> lhs, List<Expression> rhs){
         super(source,dest);
         this.lhs=lhs;
