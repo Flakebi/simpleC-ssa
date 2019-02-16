@@ -3,6 +3,7 @@ import petter.cfg.edges.Nop;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.ProcedureCall;
+import petter.cfg.edges.Psi;
 /**
  * the basic interface for all advanced visitors.
  * You have to implement this interface to visit each node in a CFG. If You want to implement fixpoint algorithms, You could inherit from the abstract class {@link AbstractCFGPropagatingVisitor}. This specific interface here provides the possibility to pass on an additional data object with each step in the CFG. The only restriction on this data object is to implement the 
@@ -58,6 +59,7 @@ public interface PropagatingVisitor<T>{
      * @return the new data to be propagated in the CFG when the iteration has to continue, <code>null</code> when the iteration stabilizes
      */
     public T visit(Procedure ae, T d);
-    
     public T visit(ProcedureCall ae, T d);
+    public T visit(Psi ae, T d);
+
 }

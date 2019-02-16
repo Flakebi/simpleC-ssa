@@ -1,7 +1,6 @@
 int main(int n) {
 	int x = 42;
-	int r = x + 99; // true liveness test
-
+	int r = x + 99 + 1; // true liveness test
 	int i = 0;
 	int y = 0;
 

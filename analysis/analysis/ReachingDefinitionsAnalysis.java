@@ -8,6 +8,8 @@ import petter.cfg.CompilationUnit;
 import petter.cfg.State;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.ProcedureCall;
+import petter.cfg.edges.Psi;
+import petter.cfg.expression.Expression;
 import petter.cfg.expression.Variable;
 import petter.utils.Tupel;
 
@@ -41,7 +43,7 @@ public class ReachingDefinitionsAnalysis extends
     public Set<Tupel<Variable, Long>> visit(Assignment assignment,
         Set<Tupel<Variable, Long>> reachingDefinitions) {
         Set<Tupel<Variable, Long>> newDefinitions = new HashSet<>(reachingDefinitions);
-        System.out.println(newDefinitions.size());
+        //System.out.println(newDefinitions.size());
         if (assignment.getLhs() instanceof Variable) {
             Variable variable = (Variable) assignment.getLhs();
             newDefinitions.removeIf((rd) -> {
@@ -52,9 +54,33 @@ public class ReachingDefinitionsAnalysis extends
                     return res;
                 }
             );
-            System.out.println("remo " + variable.toString() + ", " + newDefinitions.size());
+            //System.out.println("remo " + variable.toString() + ", " + newDefinitions.size());
             newDefinitions
                 .add(new Tupel<Variable, Long>(variable, assignment.getDest().getId()));
+        }
+        //System.out.println(newDefinitions.size());
+        return newDefinitions;
+    }
+
+    public Set<Tupel<Variable, Long>> visit(Psi psi,
+                                            Set<Tupel<Variable, Long>> reachingDefinitions) {
+        Set<Tupel<Variable, Long>> newDefinitions = new HashSet<>(reachingDefinitions);
+        System.out.println(newDefinitions.size());
+        for (Expression expression: psi.getLhs()) {
+            if (expression instanceof Variable) {
+                Variable variable = (Variable) expression;
+                newDefinitions.removeIf((rd) -> {
+                            boolean res = rd.a.toString().equals(variable.toString());
+                            if (res) {
+                                 System.out.println("removed " + rd.a.toString() + ", " + rd.b);
+                            }
+                            return res;
+                        }
+                );
+                //System.out.println("remo " + variable.toString() + ", " + newDefinitions.size());
+                newDefinitions
+                        .add(new Tupel<Variable, Long>(variable, psi.getDest().getId()));
+            }
         }
         System.out.println(newDefinitions.size());
         return newDefinitions;
@@ -78,8 +104,8 @@ public class ReachingDefinitionsAnalysis extends
 //        System.out.println(lub(reachingDefinitions, oldRD));
         if (!lessoreq(reachingDefinitions, oldRD)) {
             dataflowOf(state, lub(oldRD, reachingDefinitions));
-            System.out.println(state);
-            System.out.println(lub(oldRD, reachingDefinitions));
+            //System.out.println(state);
+            //System.out.println(lub(oldRD, reachingDefinitions));
             return lub(oldRD, reachingDefinitions);
         }
         return null;
@@ -105,6 +131,10 @@ public class ReachingDefinitionsAnalysis extends
 //        System.out.println(s);
 //        System.out.println(output);
         return output;
+    }
+
+    Set<Tupel<Variable, Long>> getStateRepresentation(State s) {
+        return dataflowOf(s);
     }
 }
 

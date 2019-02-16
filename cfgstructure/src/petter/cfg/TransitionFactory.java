@@ -3,12 +3,13 @@ package petter.cfg;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.Nop;
+import petter.cfg.edges.Psi;
 import petter.cfg.edges.Transition;
 import petter.cfg.expression.Expression;
 import petter.cfg.expression.FunctionCall;
 import petter.cfg.expression.Operator;
 import petter.cfg.expression.Variable;
-
+import java.util.List;
 /**
  * Factory for producing CFG edges
  *
@@ -24,6 +25,10 @@ public class TransitionFactory {
      */
     public static Transition createAssignment(State source, State dest, Expression lhs, Expression rhs) {
         return new Assignment(source, dest, lhs, rhs);
+    }
+
+    public static Transition createPsi(State source, State dest, List<Expression> lhs, List<Expression> rhs) {
+        return new Psi(source, dest, lhs, rhs);
     }
 
     /**

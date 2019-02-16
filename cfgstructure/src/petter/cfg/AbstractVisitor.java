@@ -2,6 +2,7 @@ package petter.cfg;
 import petter.cfg.edges.Nop;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.Assignment;
+import petter.cfg.edges.Psi;
 
 import java.util.Queue;
 import java.util.Iterator;
@@ -128,4 +129,5 @@ public abstract class AbstractVisitor implements Visitor{
     public boolean visit(GuardedTransition s)	     { return defaultBehaviour(s); }
     public boolean visit(Procedure s)	     { return defaultBehaviour(s); }
     public boolean visit(ProcedureCall s)	     { return defaultBehaviour(s); }
+    public boolean visit(Psi s)             { return defaultBehaviour(s); }
 }

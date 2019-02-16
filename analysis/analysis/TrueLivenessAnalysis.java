@@ -4,10 +4,7 @@ import petter.cfg.AbstractPropagatingVisitor;
 import petter.cfg.AbstractVisitor;
 import petter.cfg.CompilationUnit;
 import petter.cfg.State;
-import petter.cfg.edges.Assignment;
-import petter.cfg.edges.GuardedTransition;
-import petter.cfg.edges.ProcedureCall;
-import petter.cfg.edges.Transition;
+import petter.cfg.edges.*;
 import petter.cfg.expression.Variable;
 import petter.cfg.expression.visitors.AbstractExpressionVisitor;
 
@@ -27,10 +24,10 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
         }
     }
 
-    class CustomExpressionVisitor extends AbstractVisitor {
+    class CustomTransitionVisitor extends AbstractVisitor {
         Set<Variable> exprs;
 
-        CustomExpressionVisitor(Set<Variable> liveVars) {
+        CustomTransitionVisitor(Set<Variable> liveVars) {
             super(false);
             exprs = new HashSet<>(liveVars);
         }
@@ -56,6 +53,28 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
 
             return super.visit(s);
         }
+
+        @Override
+        public boolean visit(Psi s) {
+            Set<Variable> toBeAdded = new HashSet<>();
+            Set<Variable> toBeRemoved = new HashSet<>();
+
+            for (int i = 0; i < s.getLhs().size(); i++) {
+                VariableVisitor variableVisitor = new VariableVisitor();
+
+                if (exprs.contains(s.getLhs().get(i))) {
+                    s.getRhs().get(i).accept(variableVisitor);
+                }
+
+                toBeRemoved.add((Variable) s.getLhs().get(i));
+                toBeAdded.addAll(variableVisitor.exprs);
+            }
+
+            exprs.removeAll(toBeRemoved);
+            exprs.addAll(toBeAdded);
+
+            return super.visit(s);
+        }
     }
 
     private CompilationUnit cu;
@@ -70,7 +89,7 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
     }
 
     public Set<Variable> visit(State state, Set<Variable> parentFlow) {
-        Iterator<Transition> iterator = state.getInIterator();
+        Iterator<Transition> iterator = state.getOutIterator();
 
         Set<Variable> oldFlow = dataflowOf(state);
         Set<Variable> newFlow = Stream
@@ -78,7 +97,7 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
                 .takeWhile(x -> iterator.hasNext())
                 .map(n -> {
                     Transition transition = iterator.next();
-                    CustomExpressionVisitor visitor = new CustomExpressionVisitor(parentFlow);
+                    CustomTransitionVisitor visitor = new CustomTransitionVisitor(parentFlow);
 
                     transition.backwardAccept(visitor);
                     return visitor.exprs;
@@ -88,10 +107,10 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
                     intersection.retainAll(s2);
                     return intersection;
                 })
-                .orElse(new HashSet<>());
+                .orElse(parentFlow);
 
-        if (!lessOrEq(parentFlow, oldFlow)) {
-            dataflowOf(state, lub(oldFlow, parentFlow));
+        if (!lessOrEq(newFlow, oldFlow)) {
+            dataflowOf(state, lub(oldFlow, newFlow));
             return newFlow;
         }
 
