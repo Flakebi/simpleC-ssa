@@ -47,8 +47,7 @@ public class MainAnalysisRunner {
         layout.callDot(main);
 
         // constant propagation
-        final Set<Integer> globalVariables = new HashSet<>(cu.getGlobals());
-        final var cf = new ConstFolding(globalVariables);
+        final var cf = new ConstFolding();
         cf.fold(main);
 
         DotLayout layoutCf = new DotLayout("jpg","results/constfolding.jpg");

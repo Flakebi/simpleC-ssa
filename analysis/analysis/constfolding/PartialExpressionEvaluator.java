@@ -73,7 +73,7 @@ class PartialExpressionEvaluator implements PropagatingDFS<Tupel<Expression, Val
 
     @Override
     public Tupel<Expression, Value> postVisit(FunctionCall m, Values s, Stream<Tupel<Expression, Value>> it) {
-        return Tupel.create(m, Value.top);
+        throw new UnsupportedOperationException("No procedure calls allowed, intraprocedural analysis only");
     }
 
     @Override

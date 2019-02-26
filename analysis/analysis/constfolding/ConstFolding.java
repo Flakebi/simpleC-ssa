@@ -16,12 +16,10 @@ import java.util.Set;
 
 public class ConstFolding {
 
-    private Set<Integer> globalVariables;
     private ValueAnalysis analysis;
 
-    public ConstFolding(Set<Integer> globalVariables) {
-        this.globalVariables = globalVariables;
-        this.analysis = new ValueAnalysis(globalVariables);
+    public ConstFolding() {
+        this.analysis = new ValueAnalysis();
     }
 
     private static <T> Iterable<T> copyIterable(Iterable<T> xs) {
@@ -72,7 +70,7 @@ public class ConstFolding {
                     // The other guarded transition will never be taken. It is removed by the last case.
                 }
 
-                final Values dd = EdgeEffects.evalTransition(globalVariables, transition, d);
+                final Values dd = EdgeEffects.evalTransition(transition, d);
                 if (dd.isBottom()) {
                     transition.removeEdge();
                 }

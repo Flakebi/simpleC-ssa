@@ -9,36 +9,33 @@ import java.util.Set;
 
 class ValueAnalysis extends AbstractPropagatingVisitor<Values> {
 
-    private Set<Integer> globalVariables;
-
-    ValueAnalysis(Set<Integer> globalVariables) {
+    ValueAnalysis() {
         super(true);
-        this.globalVariables = globalVariables;
     }
 
     @Override
     public Values visit(ProcedureCall ae, Values d) {
-        return EdgeEffects.evalProcedureCall(globalVariables, ae, d);
+        return EdgeEffects.evalProcedureCall(ae, d);
     }
 
     @Override
     public Values visit(Assignment assignment, Values d) {
-        return EdgeEffects.evalAssignment(globalVariables, assignment, d);
+        return EdgeEffects.evalAssignment(assignment, d);
     }
 
     @Override
     public Values visit(Nop nop, Values d) {
-        return EdgeEffects.evalNop(globalVariables, nop, d);
+        return EdgeEffects.evalNop(nop, d);
     }
 
     @Override
     public Values visit(GuardedTransition guarded, Values d) {
-        return EdgeEffects.evalGuarded(globalVariables, guarded, d);
+        return EdgeEffects.evalGuarded(guarded, d);
     }
 
     @Override
     public Values visit(Psi psi, Values d) {
-        return EdgeEffects.evalPsi(globalVariables, psi, d);
+        return EdgeEffects.evalPsi(psi, d);
     }
 
     @Override

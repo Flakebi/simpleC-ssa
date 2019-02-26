@@ -70,7 +70,7 @@ class ExpressionEvaluator implements PropagatingDFS<Value, Values> {
 
     @Override
     public Value postVisit(FunctionCall m, Values s, Stream<Value> it) {
-        return Value.top;
+        throw new UnsupportedOperationException("No procedure calls allowed, intraprocedural analysis only");
     }
 
     @Override
