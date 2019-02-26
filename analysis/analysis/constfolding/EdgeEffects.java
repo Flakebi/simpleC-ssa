@@ -14,7 +14,7 @@ public class EdgeEffects {
     static Values evalAssignment(Assignment assignment, Values d) {
         final Expression lhs = assignment.getLhs();
         if (lhs instanceof Variable) {
-            final Value value = assignment.getRhs().accept(ExpressionEvaluator.visitor, d).get();
+            final Value value = assignment.getRhs().accept(PartialExpressionEvaluator.visitor, d).get().b;
             return d.with((Variable) assignment.getLhs(), value);
         } else {
             return d;

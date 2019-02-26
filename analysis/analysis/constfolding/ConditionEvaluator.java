@@ -7,7 +7,7 @@ class ConditionEvaluator {
     static boolean isConditionDefinitellyFalse(Expression e, Operator op_, Values d) {
         final int op = op_.getCode();
 
-        final Value v = e.accept(ExpressionEvaluator.visitor, d).get();
+        final Value v = e.accept(PartialExpressionEvaluator.visitor, d).get().b;
         if (v.isTop()) {
             return false;
         }
