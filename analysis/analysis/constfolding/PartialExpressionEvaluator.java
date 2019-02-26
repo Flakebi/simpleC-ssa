@@ -106,6 +106,8 @@ class PartialExpressionEvaluator implements PropagatingDFS<Tupel<Expression, Val
 
     @Override
     public Tupel<Expression, Value> postVisit(BinaryExpression s, Tupel<Expression, Value> lhs, Tupel<Expression, Value> rhs) {
+        final int op = s.getOperator().getCode();
+
         final Value lhsValue = lhs.b;
         final Value rhsValue = rhs.b;
 
@@ -119,15 +121,28 @@ class PartialExpressionEvaluator implements PropagatingDFS<Tupel<Expression, Val
 
         if (!lhsValue.isTop() && rhsValue.isTop()) {
             final int lv = lhsValue.getValue();
-            return Tupel.create(new BinaryExpression(new IntegerConstant(lv), s.getOperator(), rhs.a), Value.top);
+            if (op == Operator.PLUS && lv == 0 ||
+                op == Operator.MUL  && lv == 1) {
+                return rhs;
+            } else if (op == Operator.MUL && lv == 0) {
+                return Tupel.create(new IntegerConstant(0), Value.makeValue(0));
+            } else {
+                return Tupel.create(new BinaryExpression(new IntegerConstant(lv), s.getOperator(), rhs.a), Value.top);
+            }
         }
 
         if (lhsValue.isTop() && !rhsValue.isTop()) {
             final int rv = rhsValue.getValue();
-            return Tupel.create(new BinaryExpression(lhs.a, s.getOperator(), new IntegerConstant(rv)), Value.top);
+            if ((op == Operator.PLUS || op == Operator.MINUS) && rv == 0 ||
+                (op == Operator.MUL  || op == Operator.DIV  ) && rv == 1) {
+                return lhs;
+            } else if (op == Operator.MUL && rv == 0) {
+                return Tupel.create(new IntegerConstant(0), Value.makeValue(0));
+            } else {
+                return Tupel.create(new BinaryExpression(lhs.a, s.getOperator(), new IntegerConstant(rv)), Value.top);
+            }
         }
 
-        final int op = s.getOperator().getCode();
         final int lv = lhsValue.getValue();
         final int rv = rhsValue.getValue();
 
