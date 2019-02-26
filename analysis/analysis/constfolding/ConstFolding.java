@@ -2,17 +2,14 @@ package analysis.constfolding;
 
 import petter.cfg.Procedure;
 import petter.cfg.State;
-import petter.cfg.edges.Assignment;
-import petter.cfg.edges.GuardedTransition;
-import petter.cfg.edges.Nop;
-import petter.cfg.edges.Transition;
+import petter.cfg.edges.*;
 import petter.cfg.expression.Expression;
 import petter.cfg.expression.Operator;
 import petter.cfg.expression.Variable;
 import petter.utils.Tupel;
 
 import java.util.LinkedList;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ConstFolding {
 
@@ -68,6 +65,15 @@ public class ConstFolding {
                     }
                     break;
                     // The other guarded transition will never be taken. It is removed by the last case.
+                }
+
+                if (transition instanceof Psi) {
+                    final var newRhs = ((Psi) transition).getRhs().stream().map(rhs ->
+                                rhs.accept(PartialExpressionEvaluator.visitor, d).get().a ).collect(Collectors.toList());
+
+                    transition.removeEdge();
+                    new Psi(transition.getSource(), transition.getDest(), ((Psi) transition).getLhs(), newRhs);
+                    break;
                 }
 
                 final Values dd = EdgeEffects.evalTransition(transition, d);
