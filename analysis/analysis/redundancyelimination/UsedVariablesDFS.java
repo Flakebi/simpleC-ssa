@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package analysis.redundancyelimination;
 
 import java.util.HashSet;
@@ -18,10 +13,6 @@ import petter.cfg.expression.Variable;
 import petter.cfg.expression.visitors.NoVal;
 import petter.cfg.expression.visitors.SyntheticComputationDFS;
 
-/**
- *
- * @author sebi
- */
 public class UsedVariablesDFS implements SyntheticComputationDFS<Set<Variable>> {
 
     @Override
@@ -68,5 +59,5 @@ public class UsedVariablesDFS implements SyntheticComputationDFS<Set<Variable>> 
         res.addAll(rhs);
         return res;
     }
-    
+
 }

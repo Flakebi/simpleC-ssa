@@ -9,7 +9,10 @@ import petter.cfg.State;
 import petter.cfg.edges.Assignment;
 import petter.cfg.edges.GuardedTransition;
 import petter.cfg.edges.ProcedureCall;
+import petter.cfg.edges.Psi;
 import petter.cfg.expression.Expression;
+import petter.cfg.expression.IntegerConstant;
+import petter.cfg.expression.StringLiteral;
 import petter.cfg.expression.UnknownExpression;
 import petter.cfg.expression.Variable;
 import petter.cfg.expression.visitors.NoVal;
@@ -40,18 +43,14 @@ public class VeryBusyExpressionAnalysis extends AbstractPropagatingVisitor<Set<E
         return d;
     }
 
-    @Override
-    public Set<Expression> visit(Assignment a, Set<Expression> d) {
-        Set<Expression> newSet = new HashSet<>();
-        if (d != null)
-            newSet.addAll(d);
-        if (!(a.getLhs() instanceof Variable)) {
+    public static void applyTransition(Expression lhs, Expression rhs, Set<Expression> s) {
+        if (!(lhs instanceof Variable)) {
             // Add left side
-            newSet.add(a.getLhs());
+            s.add(lhs);
         } else {
-            Variable v = (Variable) a.getLhs();
+            Variable v = (Variable) lhs;
             // Remove all expressions where the left side occurs
-            newSet.removeIf(e -> {
+            s.removeIf(e -> {
                 // Do not add unknown expressions
                 if (e instanceof UnknownExpression) {
                     return true;
@@ -65,8 +64,36 @@ public class VeryBusyExpressionAnalysis extends AbstractPropagatingVisitor<Set<E
                 return false;
             });
         }
-        if (!(a.getRhs() instanceof UnknownExpression))
-            newSet.add(a.getRhs());
+        // Ignore simple expressions
+        if (!(rhs instanceof UnknownExpression) && !(rhs instanceof Variable)
+            && !(rhs instanceof IntegerConstant) && !(rhs instanceof StringLiteral))
+            s.add(rhs);
+    }
+
+    @Override
+    public Set<Expression> visit(Assignment a, Set<Expression> d) {
+        Set<Expression> newSet = new HashSet<>();
+        if (d != null)
+            newSet.addAll(d);
+        applyTransition(a.getLhs(), a.getRhs(), newSet);
+
+        Set<Expression> old = dataflowOf(a);
+        if (!lessoreq(newSet, old)) {
+            newSet = lub(newSet, old);
+            dataflowOf(a, newSet);
+            return newSet;
+        }
+        return null;
+    }
+
+    @Override
+    public Set<Expression> visit(Psi a, Set<Expression> d) {
+        Set<Expression> newSet = new HashSet<>();
+        if (d != null)
+            newSet.addAll(d);
+        for (int i = 0; i < a.getLhs().size(); i++) {
+            applyTransition(a.getLhs().get(i), a.getRhs().get(i), newSet);
+        }
 
         Set<Expression> old = dataflowOf(a);
         if (!lessoreq(newSet, old)) {
