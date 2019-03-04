@@ -170,7 +170,6 @@ public class Procedure implements java.io.Serializable,Analyzable{
     }
     private Set<Transition> transen;
     public Set<Transition> getTransitions(){
-        if (transen!=null) return transen;
         transen=new HashSet<>();
         for (State s : states){
             for (Transition transe : s.getOut())
