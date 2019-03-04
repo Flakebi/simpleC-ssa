@@ -1,0 +1,202 @@
+\documentclass[xcolor={usenames,dvipsnames}, aspectratio=169, 12pt]{beamer}
+\usetheme{tum}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{wasysym}
+\usepackage{calc}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning, calc, arrows.meta}
+\usepackage{listings}
+\usepackage{stmaryrd}
+\usepackage{svg}
+
+\lstset{
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	frame=single,
+	rulecolor=\color{black},
+	tabsize=4,
+	captionpos=b,
+	breaklines=true,
+	breakatwhitespace=false,
+	language=Java,
+	commentstyle=\itshape\color{RubineRed},
+	stringstyle=\color{BrickRed},
+	keywordstyle=\bfseries\color{Purple},
+	keywordstyle=[2]{\color{MidnightBlue}},
+	keywordstyle=[3]{\color{RoyalPurple}},
+	escapechar=ÃŸ,
+	xleftmargin=8pt,
+	xrightmargin=3pt,
+	basicstyle=\scriptsize\ttfamily,
+	morekeywords={function, in, not},
+	morecomment=[n][\color{RoyalBlue}]{<}{>}
+}
+
+% META
+% =========================================================
+\title[Program Optimization]{Partial Redundancy Elimination}
+%\subtitle{}
+\author[S. Neubauer]{Sebastian Neubauer}
+\date{March 7, 2019}
+% Drop the following 2 lines if your title page is too full
+\institute{Technische Universität München}
+%\semester{SS 2017}
+
+% =========================================================
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Analysis Module}{Maybe skip slide}
+\begin{itemize}
+	\item Own Java module
+	\item Implement different analyses
+	\item Main method takes input file and runs analyses on main function and generates pictures
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{How to implement an analysis?}
+All analyses and transformations are visitors
+\begin{enumerate}
+	\item Which type do I want to propagate (domain $\mathbb{D}$)?
+\end{enumerate}
+
+\begin{lstlisting}
+public class ReachingDefinitionsAnalysis extends AbstractPropagatingVisitor
+		<Set<Tupel<Variable, Long>>>
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{How to implement an analysis?}
+\begin{enumerate}
+	\setcounter{enumi}{1}
+	\item Implement methods\\
+	\begin{tabular}{ll}
+		\emph{lower upper bound} & Merge results\\
+		\emph{less or equal} & Detect if our solution changed\\
+	\end{tabular}
+\end{enumerate}
+
+\vspace{-0.3cm}
+\begin{lstlisting}
+static Set<Tupel<Variable, Long>> lub(
+	Set<Tupel<Variable, Long>> s1,
+	Set<Tupel<Variable, Long>> s2) {
+    if (s1 == null) return s2;
+    if (s2 == null) return s1;
+    HashSet<Tupel<Variable,Long>> res = new HashSet<>();
+    // Union
+    res.addAll(s1);
+    res.addAll(s2);
+    return res;
+}
+
+static boolean lessoreq(Set<Tupel<Variable, Long>> s1, Set<Tupel<Variable, Long>> s2) {
+    if (s1 == null) return true;
+    if (s2 == null) return false;
+    return s2.containsAll(s1);
+}
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{How to implement an analysis?}
+\begin{enumerate}
+	\setcounter{enumi}{2}
+	\item Implement \texttt{visit} for states and interesting transitions
+\end{enumerate}
+
+\begin{lstlisting}
+public Set<Tupel<Variable, Long>> visit(Assignment assignment, Set<Tupel<Variable, Long>> reachingDefinitions) {
+	Set<Tupel<Variable, Long>> newDefinitions =
+		new HashSet<>(reachingDefinitions);
+	if (assignment.getLhs() instanceof Variable) {
+		Variable variable =
+			(Variable) assignment.getLhs();
+		this.processVariableAssignment(newDefinitions, variable, assignment.getDest().getId());
+	}
+	return newDefinitions;
+}
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{How to implement an analysis?}
+\begin{enumerate}
+	\setcounter{enumi}{3}
+	\item If the solution converged, return \texttt{null} to end the fix point iteration
+\end{enumerate}
+
+\vspace{-0.3cm}
+\begin{lstlisting}
+public Set<Tupel<Variable, Long>> visit(State state,
+	Set<Tupel<Variable, Long>> reachingDefinitions) {
+	Set<Tupel<Variable,Long>> oldRD = dataflowOf(state);
+	if (oldRD == null) {
+		oldRD = new HashSet<>();
+		dataflowOf(state, reachingDefinitions);
+		if (reachingDefinitions.equals(oldRD)) {
+			return reachingDefinitions;
+		}
+	}
+	
+	if (!lessoreq(reachingDefinitions, oldRD)) {
+		dataflowOf(state,
+			lub(oldRD, reachingDefinitions));
+		return lub(oldRD, reachingDefinitions);
+	}
+	return null;
+}
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{How to implement an analysis?}
+All analyses and transformations are visitors
+\begin{enumerate}
+\item Which type do I want to propagate (domain $\mathbb{D}$)?
+\item Implement methods\\
+\begin{tabular}{ll}
+	\emph{lower upper bound} & Merge results\\
+	\emph{less or equal} & Detect if our solution changed\\
+\end{tabular}
+\item Implement \texttt{visit} for states and interesting transitions
+\item If the solution converged, return \texttt{null} to end the fix point iteration
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Partial Redundancy Elimination}
+	\begin{enumerate}
+		\item Compute Available Expressions
+		\item Compute Very Busy Expressions (needed at all paths)
+		\item Move computations to the earliest possible point
+		% Examples
+		\item<2-> Insert\ \ $T_e = e$\ \ at\ \ $(u, lab, v)$\ \ if\\
+			$e \in \mathcal{B}[v]\setminus(\llbracket lab\rrbracket^{\sharp}_{\mathcal{A}}(\mathcal{A}[u] \cup \mathcal{B}[u]))$
+	\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{tumplainframe}{Thanks!}
+\begin{center}
+	\Huge Questions?
+\end{center}
+\end{tumplainframe}
+
+\end{document}

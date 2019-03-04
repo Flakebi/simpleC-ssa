@@ -1,0 +1,168 @@
+\ProvidesPackage{beamerthemetum}
+
+\mode<presentation>
+
+\usefonttheme{default}
+\usefonttheme{tum}
+\usecolortheme{default}
+\usecolortheme{tum}
+\useinnertheme{default}
+\useoutertheme{default}
+
+\usepackage{eso-pic}
+\usepackage{etoolbox}
+\usepackage[absolute,overlay]{textpos}
+\RequirePackage{tikz}
+\RequirePackage{calc}
+\usetikzlibrary{backgrounds}
+
+\newcommand\semester[1]{\renewcommand\@semester{#1}}
+\newcommand\@semester{}
+
+\newcommand\framelogo[1]{\renewcommand\@framelogo{#1}}
+\newcommand\@framelogo{}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=0.5cm}
+\setbeamersize{text margin right=0.5cm}
+\setbeamersize{sidebar width left=0.28\paperwidth}
+\def\beamersidebarwidth{\dimexpr\beamer@leftsidebar\relax}
+
+\definecolor{tumblue}{RGB}{0,101,189}
+
+% TUM logo in the specified color
+\newcommand\drawtumlogo[1]{
+	\begin{tikzpicture}[xscale=0.1, yscale=0.1, x=1cm, y=-1cm, transform shape]
+	\fill[#1] (0, 0) -- (4, 0) -- (4, 4) -- (5, 4) -- (5, 0) -- (10, 0) --
+		(10, 5) -- (9, 5) -- (9, 1) -- (8, 1) -- (8, 5) -- (7, 5) --
+		(7, 1) -- (6, 1) -- (6, 5) -- (3, 5) -- (3, 1) -- (2, 1) --
+		(2, 5) -- (1, 5) -- (1, 1) -- (0, 1) -- cycle;
+	\end{tikzpicture}
+}
+% Faculty of informatics logo in the specified color
+\newcommand\drawinfologo[1]{
+	\begin{tikzpicture}[xscale=0.5, yscale=0.5]
+		\draw[thick, draw=#1] (0, 0) arc (95:445:1cm);
+		\draw[thick, draw=#1] (0.09, 0.2) -- (0.09, -1.8);
+	\end{tikzpicture}
+}
+
+\renewcommand{\footnoterule}{%
+	\hskip\beamersidebarwidth
+	\hskip 1pt
+	\rule{0.2\textwidth}{0.5pt}
+	\vskip 1pt
+}
+
+% Use \begin{tumplainframe} instead of \begin{frame}[plain] to remove the
+% sidebar and change the font size.
+\newenvironment{tumplainframe}
+{
+	\begingroup
+	\hskip-\beamersidebarwidth
+	\hskip-1cm
+	\advance\textwidth+\beamersidebarwidth
+	%\advance\textwidth-1cm
+	\hsize\textwidth
+	\columnwidth\textwidth
+	\setbeamercolor{normal text}{fg=white}
+	\setbeamercolor{item}{fg=white}
+	\usebeamercolor[fg]{normal text}
+	\begin{frame}[plain]
+}
+{
+	\end{frame}
+	\endgroup
+}
+
+% Title page
+\defbeamertemplate*{title page}{tum}{
+	\begin{textblock*}{2cm}(\paperwidth - 2.7cm, 0.8cm)
+		\resizebox{!}{0.8cm}{\drawtumlogo{white}}
+	\end{textblock*}
+	\begin{textblock*}{2cm}(\paperwidth - 2cm, \paperheight - 1.8cm)
+		\drawinfologo{white}
+	\end{textblock*}
+
+	\begin{tikzpicture}[remember picture, overlay]
+		\begin{pgfonlayer}{background}
+			\node at (current page.center) {\includegraphics[width=\paperwidth]{background.jpg}};
+		\end{pgfonlayer}
+	\end{tikzpicture}
+
+	\vskip 0.5cm % Align with flags
+	\hskip-\beamersidebarwidth
+	\begin{minipage}{7.5cm}
+		\raggedright
+		\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par
+		\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par
+		\bigskip
+		\usebeamerfont{author}\insertauthor\par
+		\usebeamerfont{institute}\insertinstitute\par
+		\bigskip
+		\usebeamerfont{semester}\@semester\par
+		\usebeamerfont{date}\insertdate\par
+		\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic
+	\end{minipage}
+}
+
+% Sidebar
+\defbeamertemplate*{sidebar left}{tum}
+{
+	\vspace*{\headheight}
+	\begin{beamercolorbox}[wd=\beamersidebarwidth, ht=\paperheight, sep=1em, dp=3ex]{back title}
+	\vbox to \paperheight{
+		\vspace{1cm}
+		\vspace{0.10\paperheight}
+		{\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par}\ \\
+		{\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\par}\ \\
+		\vfil
+		% Insert a picture if a framelogo is defined
+		\ifdefempty{\@framelogo}{}
+		{
+			\usebeamercolor[fg]{titlelike}
+			\@framelogo
+			\vspace{0.5cm}
+			\hspace{0.5em}
+		}
+	}
+	\end{beamercolorbox}
+}
+
+\defbeamertemplate*{footnote}{tum}{
+	\hspace*{\beamersidebarwidth}
+	\insertfootnotemark
+	\parbox{\textwidth}{
+		\insertfootnotetext%
+	}%
+}
+
+\defbeamertemplate*{frametitle}{tum}{}
+
+\defbeamertemplate*{footline}{tum}
+{
+	% For the title frame, the footline is drawn twice, once with frame number
+	% 0 and once with 1, ignore the 0
+	\ifnum \insertframenumber=0
+	\else
+	\begin{textblock*}{3ex}(\paperwidth - 3ex, \paperheight - 3ex)
+		\usebeamerfont{framenumber}\usebeamercolor[fg]{framenumber}\insertframenumber
+	\end{textblock*}
+	\fi
+	\vskip0pt
+}
+
+% Background for plain pages
+\setbeamertemplate{background canvas}
+{
+	\ifbeamer@plainframe
+		\setbeamercolor{background canvas}{parent=back title}%
+		\begin{tikzpicture}
+			\usebeamercolor[bg]{background canvas}
+			\fill[color=bg] (0,0) rectangle(\the\paperwidth,\the\paperheight);
+		\end{tikzpicture}
+	\fi
+}
+
+\mode
+<all>
