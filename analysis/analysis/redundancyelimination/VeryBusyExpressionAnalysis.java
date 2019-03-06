@@ -79,7 +79,6 @@ public class VeryBusyExpressionAnalysis extends AbstractPropagatingVisitor<Set<E
 
         Set<Expression> old = dataflowOf(a);
         if (!lessoreq(newSet, old)) {
-            newSet = lub(newSet, old);
             dataflowOf(a, newSet);
             return newSet;
         }
@@ -97,7 +96,21 @@ public class VeryBusyExpressionAnalysis extends AbstractPropagatingVisitor<Set<E
 
         Set<Expression> old = dataflowOf(a);
         if (!lessoreq(newSet, old)) {
-            newSet = lub(newSet, old);
+            dataflowOf(a, newSet);
+            return newSet;
+        }
+        return null;
+    }
+
+    @Override
+    public Set<Expression> visit(GuardedTransition a, Set<Expression> d) {
+        Set<Expression> newSet = new HashSet<>();
+        if (d != null)
+            newSet.addAll(d);
+        newSet.add(a.getAssertion());
+
+        Set<Expression> old = dataflowOf(a);
+        if (!lessoreq(newSet, old)) {
             dataflowOf(a, newSet);
             return newSet;
         }
@@ -112,21 +125,5 @@ public class VeryBusyExpressionAnalysis extends AbstractPropagatingVisitor<Set<E
             dataflowOf(s, new HashSet<>());
         }
         return d;
-    }
-
-    @Override
-    public Set<Expression> visit(GuardedTransition a, Set<Expression> d) {
-        Set<Expression> newSet = new HashSet<>();
-        if (d != null)
-            newSet.addAll(d);
-        newSet.add(a.getAssertion());
-
-        Set<Expression> old = dataflowOf(a);
-        if (!lessoreq(newSet, old)) {
-            newSet = lub(newSet, old);
-            dataflowOf(a, newSet);
-            return newSet;
-        }
-        return null;
     }
 }

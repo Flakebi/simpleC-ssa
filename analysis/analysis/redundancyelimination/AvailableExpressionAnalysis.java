@@ -102,7 +102,6 @@ public class AvailableExpressionAnalysis extends AbstractPropagatingVisitor<Set<
 
         Set<Expression> old = dataflowOf(a);
         if (!lessoreq(newSet, old)) {
-            newSet = lub(newSet, old);
             dataflowOf(a, newSet);
             return newSet;
         }
@@ -118,21 +117,10 @@ public class AvailableExpressionAnalysis extends AbstractPropagatingVisitor<Set<
 
         Set<Expression> old = dataflowOf(a);
         if (!lessoreq(newSet, old)) {
-            newSet = lub(newSet, old);
             dataflowOf(a, newSet);
             return newSet;
         }
         return null;
-    }
-
-    @Override
-    public Set<Expression> visit(State s, Set<Expression> d) {
-        if (d != null) {
-            dataflowOf(s, d);
-        } else if (dataflowOf(s) == null) {
-            dataflowOf(s, new HashSet<>());
-        }
-        return d;
     }
 
     @Override
@@ -144,10 +132,19 @@ public class AvailableExpressionAnalysis extends AbstractPropagatingVisitor<Set<
 
         Set<Expression> old = dataflowOf(a);
         if (!lessoreq(newSet, old)) {
-            newSet = lub(newSet, old);
             dataflowOf(a, newSet);
             return newSet;
         }
         return null;
+    }
+
+    @Override
+    public Set<Expression> visit(State s, Set<Expression> d) {
+        if (d != null) {
+            dataflowOf(s, lub(d, dataflowOf(s)));
+        } else if (dataflowOf(s) == null) {
+            dataflowOf(s, new HashSet<>());
+        }
+        return d;
     }
 }
