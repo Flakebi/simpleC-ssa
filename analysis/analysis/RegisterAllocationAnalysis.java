@@ -29,9 +29,13 @@ public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<V
 
     public Map<Variable, Integer> visit(State state, Map<Variable, Integer> parentFlow) {
         Set<Integer> registersBusyFromParent = parentFlow.entrySet()
+                // registers busy by parent
                 .stream()
+                // filter the one which are live in this state
                 .filter(e -> la.dataflowOf(state).contains(e.getKey()))
+                // get integer value of them
                 .map(Map.Entry::getValue)
+                // put into the set
                 .collect(Collectors.toSet());
 
         Set<Variable> liveVars = la.dataflowOf(state);
@@ -44,6 +48,7 @@ public class RegisterAllocationAnalysis extends AbstractPropagatingVisitor<Map<V
                             .filter(i -> !acc.values().contains(i) && !registersBusyFromParent.contains(i))
                             .findFirst()
                             .getAsInt();
+                    // get the register for the var from parent if available, else take the first available register
                     int reg = parentFlow.getOrDefault(var, firstAvailableReg);
                     acc.put(var, reg);
                     return acc;

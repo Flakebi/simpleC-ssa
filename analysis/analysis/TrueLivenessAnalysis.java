@@ -15,28 +15,28 @@ import java.util.stream.Stream;
 
 public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variable>> {
     class VariableVisitor extends AbstractExpressionVisitor {
-        Set<Variable> exprs = new HashSet<>();
+        Set<Variable> vars = new HashSet<>();
 
         @Override
         public void postVisit(Variable s) {
-            exprs.add(s);
+            vars.add(s);
             super.postVisit(s);
         }
     }
 
     class CustomTransitionVisitor extends AbstractVisitor {
-        Set<Variable> exprs;
+        Set<Variable> vars;
 
         CustomTransitionVisitor(Set<Variable> liveVars) {
             super(false);
-            exprs = new HashSet<>(liveVars);
+            vars = new HashSet<>(liveVars);
         }
 
         @Override
         public boolean visit(GuardedTransition s) {
             VariableVisitor variableVisitor = new VariableVisitor();
             s.getAssertion().accept(variableVisitor);
-            exprs.addAll(variableVisitor.exprs);
+            vars.addAll(variableVisitor.vars);
             return super.visit(s);
         }
 
@@ -44,12 +44,12 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
         public boolean visit(Assignment s) {
             VariableVisitor variableVisitor = new VariableVisitor();
 
-            if (exprs.contains(s.getLhs())) {
+            if (vars.contains(s.getLhs())) {
                 s.getRhs().accept(variableVisitor);
             }
 
-            exprs.remove(s.getLhs());
-            exprs.addAll(variableVisitor.exprs);
+            vars.remove(s.getLhs());
+            vars.addAll(variableVisitor.vars);
 
             return super.visit(s);
         }
@@ -62,16 +62,16 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
             for (int i = 0; i < s.getLhs().size(); i++) {
                 VariableVisitor variableVisitor = new VariableVisitor();
 
-                if (exprs.contains(s.getLhs().get(i))) {
+                if (vars.contains(s.getLhs().get(i))) {
                     s.getRhs().get(i).accept(variableVisitor);
                 }
 
                 toBeRemoved.add((Variable) s.getLhs().get(i));
-                toBeAdded.addAll(variableVisitor.exprs);
+                toBeAdded.addAll(variableVisitor.vars);
             }
 
-            exprs.removeAll(toBeRemoved);
-            exprs.addAll(toBeAdded);
+            vars.removeAll(toBeRemoved);
+            vars.addAll(toBeAdded);
 
             return super.visit(s);
         }
@@ -95,17 +95,17 @@ public class TrueLivenessAnalysis extends AbstractPropagatingVisitor<Set<Variabl
         Set<Variable> newFlow = Stream
                 .generate(() -> null)
                 .takeWhile(x -> iterator.hasNext())
+                // map every outgoing edge to live vars
                 .map(n -> {
                     Transition transition = iterator.next();
                     CustomTransitionVisitor visitor = new CustomTransitionVisitor(parentFlow);
-
                     transition.backwardAccept(visitor);
-                    return visitor.exprs;
+                    return visitor.vars;
                 })
+                // union them together
                 .reduce((s1, s2) -> {
-                    Set<Variable> intersection = new HashSet<>(s1);
-                    intersection.retainAll(s2);
-                    return intersection;
+                    s1.addAll(s2);
+                    return s1;
                 })
                 .orElse(parentFlow);
 
