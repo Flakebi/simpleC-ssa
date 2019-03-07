@@ -60,7 +60,7 @@
 \frame[plain]{\titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Analysis Module}{Maybe skip slide}
+\begin{frame}{Analysis Module}
 \begin{itemize}
 	\item Own Java module
 	\item Implement different analyses
@@ -128,7 +128,8 @@ public Set<Tupel<Variable, Long>> visit(Assignment assignment, Set<Tupel<Variabl
 	if (assignment.getLhs() instanceof Variable) {
 		Variable variable =
 			(Variable) assignment.getLhs();
-		this.processVariableAssignment(newDefinitions, variable, assignment.getDest().getId());
+		// remove tuples referencing a definition of variable on left hand side
+		// add tuple for new assignment
 	}
 	return newDefinitions;
 }
