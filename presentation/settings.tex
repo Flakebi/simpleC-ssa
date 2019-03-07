@@ -1,0 +1,113 @@
+\definecolor{vsClass}{RGB}{0,110,150}
+\definecolor{vsType}{RGB}{0,0,255}
+\definecolor{vsString}{RGB}{215,160,135}
+\definecolor{vsComment}{RGB}{10,100,30}
+
+\lstset{
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  stepnumber=1,
+  numbersep=5pt,                  % how far the line-numbers are from the code
+%  backgroundcolor=\color{gray!35},
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,
+  frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed
+  tabsize=4,                      % sets default tabsize to 4 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,
+  language=C,
+  keywordstyle=\bfseries\color{vsType},
+  commentstyle=\itshape\color{vsComment},
+  stringstyle=\color{vsString},
+  keywordstyle=[2]{\color{vsClass}},
+  escapechar=ß,
+  basicstyle=\scriptsize,
+  morekeywords={u32, __u32, __be32, __le32,
+		u16, __u16, __be16, __le16,
+		u8,  __u8,  __be8,  __le8,
+		size_t, ssize_t}
+}
+
+% https://tex.stackexchange.com/questions/55068/is-there-a-tikz-equivalent-to-the-pstricks-ncbar-command
+\tikzset{
+	ncbar angle/.initial=90,
+	ncbar/.style={
+	to path=(\tikztostart)
+		-- ($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)
+		-- ($(\tikztotarget)!($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztostart)$)
+		-- (\tikztotarget)
+	},
+	ncbar/.default=0.5cm,
+}
+
+\tikzset{square left brace/.style={ncbar=0.5cm}}
+\tikzset{square right brace/.style={ncbar=-0.5cm}}
+
+% https://tex.stackexchange.com/questions/75836/creating-a-seamless-xor-symbol-as-node
+\tikzset{XOR/.style={draw,circle,append after command={
+		[shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+		(\tikzlastnode.north) edge (\tikzlastnode.south)
+		(\tikzlastnode.east) edge (\tikzlastnode.west)
+		}
+	}
+}
+
+% https://tex.stackexchange.com/questions/13793/beamer-alt-command-like-visible-instead-of-like-only
+\makeatletter
+% Detect mode. mathpalette is used to detect the used math style
+\newcommand<>\AAlt[2]{%
+    \begingroup
+    \ifmmode
+        \expandafter\mathpalette
+        \expandafter\math@AAlt
+    \else
+        \expandafter\make@AAlt
+    \fi
+    {{#1}{#2}{#3}}%
+    \endgroup
+}
+
+% Un-brace the second argument (required because \mathpalette reads the three arguments as one
+\newcommand\math@AAlt[2]{\math@@AAlt{#1}#2}
+
+% Set the two arguments in boxes. The math style is given by #1. \m@th sets \mathsurround to 0.
+\newcommand\math@@AAlt[3]{%
+    \setbox\z@ \hbox{$\m@th #1{#2}$}%
+    \setbox\@ne\hbox{$\m@th #1{#3}$}%
+    \@AAlt
+}
+
+% Un-brace the argument
+\newcommand\make@AAlt[1]{\make@@AAlt#1}
+
+% Set the two arguments into normal boxes
+\newcommand\make@@AAlt[2]{%
+    \sbox\z@ {#1}%
+    \sbox\@ne{#2}%
+    \@AAlt
+}
+
+% Place one of the two boxes using \rlap and place a \phantom box with the maximum of the two boxes
+\newcommand\@AAlt[1]{%
+    \alt#1%
+        {\rlap{\usebox0}}%
+        {\rlap{\usebox1}}%
+    \setbox\tw@\null
+    \ht\tw@\ifnum\ht\z@>\ht\@ne\ht\z@\else\ht\@ne\fi
+    \dp\tw@\ifnum\dp\z@>\dp\@ne\dp\z@\else\dp\@ne\fi
+    \wd\tw@\ifnum\wd\z@>\wd\@ne\wd\z@\else\wd\@ne\fi
+    \box\tw@
+}
+
+\makeatother
+
+\newcommand<>\Alt[2]{{%
+    \sbox0{$\displaystyle #1$}%
+    \sbox1{$\displaystyle #2$}%
+    \alt#3%
+        {\rlap{\usebox0}\vphantom{\usebox1}\hphantom{\ifnum\wd0>\wd1 \usebox0\else\usebox1\fi}}%
+        {\rlap{\usebox1}\vphantom{\usebox0}\hphantom{\ifnum\wd0>\wd1 \usebox0\else\usebox1\fi}}%
+	}}

@@ -1,4 +1,23 @@
-# SimpleC
+# Program Optimization Project
+
+## Build and Run
+```sh
+cd analysis
+
+# This will also build the simplec project
+ant
+
+# The images of transformations will be put into the results directory
+mkdir results
+java -jar dist/analysis.jar <input-file.c>
+# E.g.
+java -jar dist/analysis.jar ConstFoldingFiles/simple.c
+```
+
+After running, you can look at the effect of the transformations in the `results` folder.
+
+---
+# Original Readme of SimpleC
 
 This is a simplified C-like frontend, which produces Compilation Units, which
 hold Control Flow Graphs.
